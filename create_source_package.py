@@ -227,6 +227,7 @@ def create_source_package():
         "create_windows_icon.py",
         "requirements.txt",
         "BUILD_INSTRUCTIONS.md",
+        "PC_BUILD_INSTRUCTIONS.md",
         "README.md",
         "LICENSE",
         "MANUAL.md"
@@ -260,7 +261,7 @@ To build the application:
 2. Open a command prompt in this folder
 3. Follow the instructions in BUILD_INSTRUCTIONS.md
 
-For detailed build instructions, please refer to the BUILD_INSTRUCTIONS.md file.
+For detailed Windows build instructions, please refer to the PC_BUILD_INSTRUCTIONS.md file.
 
 Files included:
 - resolume_gui.py - Main application code
@@ -272,7 +273,8 @@ Files included:
 - build_windows.py - Script to build the application on Windows
 - create_windows_icon.py - Script to create Windows icon (.ico) file
 - requirements.txt - Python dependencies
-- BUILD_INSTRUCTIONS.md - Detailed build instructions
+- BUILD_INSTRUCTIONS.md - General build instructions
+- PC_BUILD_INSTRUCTIONS.md - Detailed Windows build instructions
 - README.md - Application overview
 - MANUAL.md - User manual (Markdown format)
 - LICENSE - MIT License
@@ -282,6 +284,7 @@ Windows-specific files:
 - resolume_converter_windows.spec - Optimized spec file for Windows builds
 - build_windows.py - Script to build the application on Windows
 - create_windows_icon.py - Script to create Windows icon (.ico) file
+- PC_BUILD_INSTRUCTIONS.md - Detailed Windows build instructions
 
 macOS-specific files:
 - resolume_converter.spec - Optimized spec file for macOS builds
