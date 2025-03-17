@@ -40,9 +40,21 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
     durations_adjusted = 0
     paths_updated = 0
     custom_durations_preserved = 0
+    text_components_found = 0  # New counter for text components
     
     # Keep track of transforms we've already processed
     processed_transform_ids = set()
+    
+    # DEBUG: Find all text-related components
+    text_blocks = root.findall(".//RenderPass[@type='TextBlock']")
+    text_effects = root.findall(".//RenderPass[@type='TextEffect']")
+    text_generators = root.findall(".//RenderPass[@type='TextGenerator']")
+    block_text_generators = root.findall(".//RenderPass[@type='BlockTextGenerator']")
+    
+    print(f"DEBUG: Found {len(text_blocks)} TextBlock components")
+    print(f"DEBUG: Found {len(text_effects)} TextEffect components")
+    print(f"DEBUG: Found {len(text_generators)} TextGenerator components")
+    print(f"DEBUG: Found {len(block_text_generators)} BlockTextGenerator components")
 
     # --- 1) Update the CompositionInfo resolution and name ---
     comp_info = root.find(".//CompositionInfo")
@@ -152,6 +164,39 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     transforms_adjusted += 1
                     print(f"  Adjusted {param_name} from {old_val} to {new_val}")
 
+    # --- Process text components specifically ---
+    for text_component_type, components in [
+        ("TextBlock", text_blocks),
+        ("TextEffect", text_effects),
+        ("TextGenerator", text_generators),
+        ("BlockTextGenerator", block_text_generators)
+    ]:
+        for component in components:
+            text_components_found += 1
+            component_id = component.get("uniqueId", "unknown")
+            print(f"DEBUG: Processing {text_component_type} component (ID: {component_id})")
+            
+            # Find all parameters for this text component
+            params = component.findall(".//Param") + component.findall(".//ParamRange")
+            
+            # Log all parameters for debugging
+            print(f"DEBUG: Found {len(params)} parameters for {text_component_type}")
+            for param in params:
+                param_name = param.get("name", "unnamed")
+                param_type = param.get("T", param.get("type", "unknown"))
+                param_value = param.get("value", "no-value")
+                print(f"DEBUG: {text_component_type} param: {param_name} (Type: {param_type}, Value: {param_value})")
+                
+                # Check for text-specific parameters that might need scaling
+                if param_name in ["FontSize", "Size", "LineHeight", "CharacterSpacing", "LineSpacing", "Position X", "Position Y"]:
+                    try:
+                        old_val = float(param_value)
+                        new_val = old_val * resolution_factor
+                        print(f"DEBUG: Scaling text parameter {param_name} from {old_val} to {new_val}")
+                        param.set("value", str(new_val))
+                    except (ValueError, TypeError) as e:
+                        print(f"DEBUG: Error scaling text parameter {param_name}: {e}")
+
     # --- 4) Process each clip ---
     clips = root.findall(".//Clip")
     for clip in clips:
@@ -249,6 +294,29 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
         transforms = clip.findall(".//VideoTrack/RenderPass/RenderPass[@type='TransformEffect']")
         print(f"Found {len(transforms)} transforms in clip")
         transform_count = 0
+        
+        # Check if this is an image clip
+        is_image_clip = False
+        video_source = clip.find(".//VideoFormatReaderSource")
+        if video_source is not None:
+            file_path = video_source.get("fileName", "")
+            if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')):
+                is_image_clip = True
+                print(f"IMAGE DEBUG: Processing transforms for image clip: {file_path}")
+                
+                # Get clip dimensions for reference
+                clip_video_params = clip.find(".//VideoTrack/Params")
+                if clip_video_params is not None:
+                    clip_width = clip_video_params.find(".//ParamRange[@name='Width']")
+                    clip_height = clip_video_params.find(".//ParamRange[@name='Height']")
+                    if clip_width is not None and clip_height is not None:
+                        try:
+                            width_val = float(clip_width.get("value"))
+                            height_val = float(clip_height.get("value"))
+                            print(f"IMAGE DEBUG: Clip dimensions: {width_val}x{height_val}")
+                        except (ValueError, TypeError):
+                            print("IMAGE DEBUG: Could not parse clip dimensions")
+        
         for transform in transforms:
             transform_count += 1
             transforms_processed += 1  # Increment the counter
@@ -262,6 +330,14 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
             # Get all parameters for this transform
             params = transform.findall(".//ParamRange")
             
+            # For image clips, log all transform parameters for debugging
+            if is_image_clip:
+                print(f"IMAGE DEBUG: Transform parameters for image clip (ID: {transform_id}):")
+                for p in params:
+                    p_name = p.get("name")
+                    p_val = p.get("value")
+                    print(f"IMAGE DEBUG:   {p_name} = {p_val}")
+            
             # Process each parameter
             for param in params:
                 param_name = param.get("name")
@@ -273,13 +349,35 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     param.set("value", str(new_val))
                     transforms_adjusted += 1
                     print(f"  Adjusted {param_name} from {old_val} to {new_val}")
+                    
+                    # For image clips, log additional information
+                    if is_image_clip:
+                        print(f"IMAGE DEBUG: Adjusted {param_name} for image clip from {old_val} to {new_val}")
 
-            # If you also want to scale the "Scale" param, uncomment:
-            # scale_param = transform.find(".//ParamRange[@name='Scale']")
-            # if scale_param is not None:
-            #     old_val = float(scale_param.get("value"))
-            #     new_val = old_val * resolution_factor
-            #     scale_param.set("value", str(new_val))
+            # For images, we should handle the Scale parameter differently
+            if is_image_clip:
+                scale_param = transform.find(".//ParamRange[@name='Scale']")
+                if scale_param is not None:
+                    try:
+                        old_val = float(scale_param.get("value"))
+                        print(f"IMAGE DEBUG: Found Scale parameter with value {old_val}")
+                        
+                        # For images, we might want to preserve the scale to maintain aspect ratio
+                        # But for now, just log it without changing
+                        print(f"IMAGE DEBUG: Scale parameter would change from {old_val} to {old_val * resolution_factor}")
+                        
+                        # Uncomment to actually change the scale
+                        # new_val = old_val * resolution_factor
+                        # scale_param.set("value", str(new_val))
+                    except (ValueError, TypeError) as e:
+                        print(f"IMAGE DEBUG: Error parsing Scale parameter: {e}")
+            # If you also want to scale the "Scale" param for non-images, uncomment:
+            # elif not is_image_clip:
+            #     scale_param = transform.find(".//ParamRange[@name='Scale']")
+            #     if scale_param is not None:
+            #         old_val = float(scale_param.get("value"))
+            #         new_val = old_val * resolution_factor
+            #         scale_param.set("value", str(new_val))
 
         # 4c) Process clip durations in Timeline or BPM mode
         position_param = clip.find(".//ParamRange[@name='Position']")
@@ -353,11 +451,26 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     try:
                         current_width = int(primary_source.get("width"))
                         current_height = int(primary_source.get("height"))
-                        primary_source.set("width", str(int(current_width * resolution_factor)))
-                        primary_source.set("height", str(int(current_height * resolution_factor)))
-                        print(f"Preserving image aspect ratio: {current_width}x{current_height} -> {int(current_width * resolution_factor)}x{int(current_height * resolution_factor)}")
-                    except (ValueError, TypeError):
+                        
+                        # Log image details for debugging
+                        print(f"IMAGE DEBUG: Processing image with dimensions {current_width}x{current_height}")
+                        print(f"IMAGE DEBUG: Aspect ratio: {current_width/current_height:.2f}")
+                        
+                        # Check if the image has an unusual aspect ratio
+                        aspect_ratio = current_width / current_height
+                        if aspect_ratio > 2.0 or aspect_ratio < 0.5:
+                            print(f"IMAGE DEBUG: Unusual aspect ratio detected: {aspect_ratio:.2f}")
+                        
+                        # Scale dimensions
+                        new_width = int(current_width * resolution_factor)
+                        new_height = int(current_height * resolution_factor)
+                        primary_source.set("width", str(new_width))
+                        primary_source.set("height", str(new_height))
+                        
+                        print(f"Preserving image aspect ratio: {current_width}x{current_height} -> {new_width}x{new_height}")
+                    except (ValueError, TypeError) as e:
                         # If we can't parse the values, use default scaling
+                        print(f"IMAGE DEBUG: Error parsing image dimensions: {e}")
                         primary_source.set("width", str(int(1920 * resolution_factor)))
                         primary_source.set("height", str(int(1080 * resolution_factor)))
                 else:
@@ -424,7 +537,8 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
         f"Transforms adjusted: {transforms_adjusted}\n"
         f"Durations adjusted: {durations_adjusted}\n"
         f"Custom durations preserved: {custom_durations_preserved}\n"
-        f"File paths updated: {paths_updated}\n\n"
+        f"File paths updated: {paths_updated}\n"
+        f"Text components found: {text_components_found}\n\n"
         f"Adjusted composition saved to: {output_file}"
     )
     return summary

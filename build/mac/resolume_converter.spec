@@ -4,7 +4,13 @@ block_cipher = None
 
 # Get the repository root directory
 import os
-repo_root = os.path.abspath(os.path.join(os.path.dirname(SPECPATH), "../.."))
+# Use hardcoded path to ensure correct location
+repo_root = '/Users/tijn/Code/UpscaleComp'
+print(f"Repository root directory: {repo_root}")
+
+# Use absolute path for the main script
+main_script = os.path.join(repo_root, 'resolume_gui.py')
+print(f"Main script path: {main_script}")
 
 # Add the MANUAL.md and screenshots to the data files
 datas = [
@@ -13,7 +19,7 @@ datas = [
 ]
 
 a = Analysis(
-    [os.path.join(repo_root, 'resolume_gui.py')],
+    [main_script],
     pathex=[],
     binaries=[],
     datas=datas,
@@ -70,8 +76,8 @@ app = BUNDLE(
     icon=os.path.join(repo_root, 'icons/app_icon.icns'),
     bundle_identifier='com.tijnisfijn.resolume-composition-converter',
     info_plist={
-        'CFBundleShortVersionString': '1.0.1',
-        'CFBundleVersion': '1.0.1',
+        'CFBundleShortVersionString': '1.0.2',
+        'CFBundleVersion': '1.0.2',
         'NSHighResolutionCapable': 'True',
         'NSHumanReadableCopyright': '© 2025 Tijn Schuurmans',
     },
