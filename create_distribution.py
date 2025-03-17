@@ -7,13 +7,18 @@ import os
 import sys
 import shutil
 import subprocess
+import platform
 
 def create_distribution_folder():
     """Create a distribution folder with the application and documentation"""
     print("Creating distribution folder...")
     
+    # Determine platform
+    is_mac = platform.system() == "Darwin"
+    platform_dir = "mac" if is_mac else "windows"
+    
     # Create distribution folder
-    dist_folder = "Resolume Composition Converter"
+    dist_folder = f"dist/{platform_dir}/Resolume Composition Converter"
     if os.path.exists(dist_folder):
         print(f"Removing existing distribution folder: {dist_folder}")
         try:
@@ -37,8 +42,8 @@ def create_distribution_folder():
     
     # Copy the application
     print("Copying application...")
-    app_source = "dist/Resolume Composition Converter.app"
-    app_dest = f"{dist_folder}/Resolume Composition Converter.app"
+    app_source = "dist/Resolume Composition Converter.app" if is_mac else "dist/Resolume Composition Converter"
+    app_dest = f"{dist_folder}/Resolume Composition Converter.app" if is_mac else f"{dist_folder}/Resolume Composition Converter"
     if os.path.exists(app_source):
         shutil.copytree(app_source, app_dest)
         print(f"Application copied to: {app_dest}")
@@ -59,54 +64,48 @@ def create_distribution_folder():
         print("HTML manual copied")
     else:
         print("Warning: HTML manual not found")
-        
-    # Copy macOS README
-    if os.path.exists("MAC_README.txt"):
-        shutil.copy("MAC_README.txt", f"{dist_folder}/MAC_README.txt")
-        print("macOS README copied")
+    
+    # Platform-specific files
+    if is_mac:
+        # Copy macOS README
+        if os.path.exists("build/mac/MAC_README.txt"):
+            shutil.copy("build/mac/MAC_README.txt", f"{dist_folder}/MAC_README.txt")
+            print("macOS README copied")
+        else:
+            print("Warning: macOS README not found")
+            
+        # Copy launch scripts
+        if os.path.exists("build/mac/launch_resolume_converter.command"):
+            shutil.copy("build/mac/launch_resolume_converter.command", f"{dist_folder}/Launch Resolume Converter.command")
+            # Make it executable
+            os.chmod(f"{dist_folder}/Launch Resolume Converter.command", 0o755)
+            print("Launch script copied")
+        else:
+            print("Warning: Launch script not found")
+            
+        if os.path.exists("build/mac/debug_launch.command"):
+            shutil.copy("build/mac/debug_launch.command", f"{dist_folder}/Debug Launch.command")
+            # Make it executable
+            os.chmod(f"{dist_folder}/Debug Launch.command", 0o755)
+            print("Debug launch script copied")
+        else:
+            print("Warning: Debug launch script not found")
+            
+        # Copy shell script
+        if os.path.exists("build/mac/run_resolume_converter.sh"):
+            shutil.copy("build/mac/run_resolume_converter.sh", f"{dist_folder}/Run Resolume Converter.sh")
+            # Make it executable
+            os.chmod(f"{dist_folder}/Run Resolume Converter.sh", 0o755)
+            print("Shell script copied")
+        else:
+            print("Warning: Shell script not found")
     else:
-        print("Warning: macOS README not found")
-        
-    # Copy launch scripts
-    if os.path.exists("launch_resolume_converter.command"):
-        shutil.copy("launch_resolume_converter.command", f"{dist_folder}/Launch Resolume Converter.command")
-        # Make it executable
-        os.chmod(f"{dist_folder}/Launch Resolume Converter.command", 0o755)
-        print("Launch script copied")
-    else:
-        print("Warning: Launch script not found")
-        
-    if os.path.exists("debug_launch.command"):
-        shutil.copy("debug_launch.command", f"{dist_folder}/Debug Launch.command")
-        # Make it executable
-        os.chmod(f"{dist_folder}/Debug Launch.command", 0o755)
-        print("Debug launch script copied")
-    else:
-        print("Warning: Debug launch script not found")
-        
-    # Copy shell script
-    if os.path.exists("run_resolume_converter.sh"):
-        shutil.copy("run_resolume_converter.sh", f"{dist_folder}/Run Resolume Converter.sh")
-        # Make it executable
-        os.chmod(f"{dist_folder}/Run Resolume Converter.sh", 0o755)
-        print("Shell script copied")
-    else:
-        print("Warning: Shell script not found")
-        
-    # Copy launcher application
-    if os.path.exists("Resolume Launcher.app"):
-        shutil.copytree("Resolume Launcher.app", f"{dist_folder}/Resolume Launcher.app", dirs_exist_ok=True)
-        print("Launcher application copied")
-    else:
-        print("Warning: Launcher application not found")
-        # Try to create it if it doesn't exist
-        if os.path.exists("create_launcher_app.sh"):
-            print("Attempting to create launcher application...")
-            try:
-                subprocess.run(["bash", "create_launcher_app.sh"], check=True)
-                print("Launcher application created and copied")
-            except Exception as e:
-                print(f"Error creating launcher application: {e}")
+        # Copy Windows README
+        if os.path.exists("build/windows/PC_BUILD_INSTRUCTIONS.md"):
+            shutil.copy("build/windows/PC_BUILD_INSTRUCTIONS.md", f"{docs_folder}/Windows Instructions.md")
+            print("Windows instructions copied")
+        else:
+            print("Warning: Windows instructions not found")
     
     # Copy screenshots folder
     if os.path.exists("documentation/screenshots"):
@@ -189,11 +188,11 @@ def create_distribution_folder():
     </ul>
     
     <h2>Installation</h2>
-    <p>To install the application, simply drag the "Resolume Composition Converter.app" to your Applications folder.</p>
+    <p>To install the application, simply {"drag the 'Resolume Composition Converter.app' to your Applications folder" if is_mac else "run the executable file"}.</p>
     
     <h2>Getting Started</h2>
     <ol>
-        <li>Launch the application from your Applications folder</li>
+        <li>Launch the application {"from your Applications folder" if is_mac else ""}</li>
         <li>Select your input composition file (.avc)</li>
         <li>Choose an output location for the converted file</li>
         <li>Set your desired resolution and frame rate</li>
@@ -211,7 +210,7 @@ def create_distribution_folder():
     
     print(f"\nDistribution folder created successfully: {dist_folder}")
     print("Contents:")
-    print(f"- {dist_folder}/Resolume Composition Converter.app")
+    print(f"- {dist_folder}/{os.path.basename(app_dest)}")
     print(f"- {dist_folder}/Documentation/")
     
     return True
@@ -219,14 +218,21 @@ def create_distribution_folder():
 def create_zip():
     """Create a ZIP archive of the distribution folder"""
     print("\nCreating ZIP archive...")
-    dist_folder = "Resolume Composition Converter"
+    
+    # Determine platform
+    is_mac = platform.system() == "Darwin"
+    platform_dir = "mac" if is_mac else "windows"
+    
+    dist_folder = f"dist/{platform_dir}/Resolume Composition Converter"
+    zip_name = f"dist/{platform_dir}/Resolume Composition Converter {'Mac' if is_mac else 'Windows'}"
+    
     if not os.path.exists(dist_folder):
         print(f"Error: Distribution folder not found: {dist_folder}")
         return False
     
     try:
-        shutil.make_archive(dist_folder, 'zip', '.', dist_folder)
-        print(f"ZIP archive created: {dist_folder}.zip")
+        shutil.make_archive(zip_name, 'zip', os.path.dirname(dist_folder), os.path.basename(dist_folder))
+        print(f"ZIP archive created: {zip_name}.zip")
         return True
     except Exception as e:
         print(f"Error creating ZIP archive: {e}")

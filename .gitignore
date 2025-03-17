@@ -5,7 +5,11 @@ __pycache__/
 
 # Distribution / packaging
 dist/
-build/
+# Allow our build directories but ignore PyInstaller build
+/build/temp/
+# Keep our platform-specific build directories
+!/build/mac/
+!/build/windows/
 *.egg-info/
 
 # Virtual environments
@@ -24,5 +28,6 @@ ENV/
 Thumbs.db
 
 # Application specific
-*.spec
+# Allow our spec files
+# *.spec
 *.zip

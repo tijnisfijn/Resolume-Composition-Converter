@@ -50,195 +50,86 @@ def create_requirements_file():
         print("Created basic requirements.txt as fallback")
         return True
 
-def create_windows_build_instructions():
-    """Create a BUILD_INSTRUCTIONS.md file with Windows build instructions"""
-    print("Creating Windows build instructions...")
-    
-    instructions = """# Build Instructions for Windows
-
-## Prerequisites
-
-1. **Python 3.8 or newer**
-   - Download and install from [python.org](https://www.python.org/downloads/windows/)
-   - Make sure to check "Add Python to PATH" during installation
-
-2. **Git** (optional, for version control)
-   - Download and install from [git-scm.com](https://git-scm.com/download/win)
-
-## Setup
-
-1. **Create a virtual environment**:
-   ```
-   python -m venv venv
-   ```
-
-2. **Activate the virtual environment**:
-   ```
-   venv\\Scripts\\activate
-   ```
-
-3. **Install dependencies**:
-   ```
-   pip install -r requirements.txt
-   ```
-
-## Building the Application
-
-1. **Run the build script**:
-   ```
-   python build_windows.py
-   ```
-
-   This will:
-   - Build the application using PyInstaller
-   - Create the HTML documentation
-   - Package everything into a distribution folder
-
-2. **Alternative manual build**:
-   ```
-   pyinstaller resolume_converter.spec
-   python convert_manual_simple.py
-   python create_distribution.py
-   ```
-
-## Output
-
-After building, you'll find:
-
-1. **dist/Resolume Composition Converter.exe** - The executable application
-2. **Resolume Composition Converter/** - A folder containing the application and documentation
-3. **Resolume Composition Converter.zip** - A ZIP archive of the folder
-
-## Troubleshooting
-
-- If you encounter issues with tkinter, make sure you have the tk package installed:
-  ```
-  pip install tk
-  ```
-
-- If PyInstaller fails, try running:
-  ```
-  pip uninstall pyinstaller
-  pip install pyinstaller
-  ```
-
-- For any other issues, please refer to the PyInstaller documentation:
-  [PyInstaller Windows Documentation](https://pyinstaller.org/en/stable/usage.html#windows)
-"""
-    
-    with open("BUILD_INSTRUCTIONS.md", "w") as f:
-        f.write(instructions)
-    
-    print("BUILD_INSTRUCTIONS.md created successfully")
-    return True
-
-def create_windows_build_script():
-    """Create a build_windows.py script for Windows"""
-    print("Creating Windows build script...")
-    
-    script = """#!/usr/bin/env python3
-\"\"\"
-Build script for Windows
-\"\"\"
-
-import os
-import sys
-import subprocess
-import shutil
-
-def main():
-    \"\"\"Main function\"\"\"
-    print("Building Resolume Composition Converter for Windows...")
-    
-    # Activate virtual environment if not already activated
-    if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
-        print("Warning: Virtual environment not activated. It's recommended to run this script in a virtual environment.")
-    
-    # Install requirements
-    print("\\nInstalling requirements...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
-    
-    # Install Pillow for icon creation
-    print("\\nInstalling Pillow for icon creation...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "Pillow"], check=True)
-    
-    # Create Windows icon
-    print("\\nCreating Windows icon...")
-    subprocess.run([sys.executable, "create_windows_icon.py"], check=True)
-    
-    # Build the application
-    print("\\nBuilding application with PyInstaller...")
-    subprocess.run([sys.executable, "-m", "PyInstaller", "resolume_converter_windows.spec"], check=True)
-    
-    # Create HTML documentation
-    print("\\nCreating HTML documentation...")
-    subprocess.run([sys.executable, "convert_manual_simple.py"], check=True)
-    
-    # Create distribution package
-    print("\\nCreating distribution package...")
-    subprocess.run([sys.executable, "create_distribution.py"], check=True)
-    
-    print("\\nBuild completed successfully!")
-    print("You can find the application in the 'Resolume Composition Converter' folder")
-    print("or in the 'Resolume Composition Converter.zip' archive.")
-    
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
-"""
-    
-    with open("build_windows.py", "w") as f:
-        f.write(script)
-    
-    print("build_windows.py created successfully")
-    return True
-
 def create_source_package():
     """Create a source package with everything needed to compile the application"""
     print("Creating source package...")
     
     # Create source package folder
-    source_folder = "Resolume Composition Converter - Source"
+    source_folder = "Resolume-Composition-Converter-Source"
     if os.path.exists(source_folder):
         print(f"Removing existing source folder: {source_folder}")
         shutil.rmtree(source_folder)
     
     os.makedirs(source_folder, exist_ok=True)
     
+    # Create platform-specific build directories
+    os.makedirs(f"{source_folder}/build/mac", exist_ok=True)
+    os.makedirs(f"{source_folder}/build/windows", exist_ok=True)
+    os.makedirs(f"{source_folder}/dist/mac", exist_ok=True)
+    os.makedirs(f"{source_folder}/dist/windows", exist_ok=True)
+    
     # Create requirements.txt
     create_requirements_file()
     
-    # Create Windows build instructions
-    create_windows_build_instructions()
-    
-    # Create Windows build script
-    create_windows_build_script()
-    
-    # Files to copy
-    files_to_copy = [
+    # Core files to copy to the root directory
+    core_files = [
         "resolume_gui.py",
-        "resolume_converter.spec",
-        "resolume_converter_windows.spec",
         "runtime_hook.py",
         "convert_manual_simple.py",
         "create_distribution.py",
-        "build_windows.py",
-        "create_windows_icon.py",
         "requirements.txt",
-        "BUILD_INSTRUCTIONS.md",
-        "PC_BUILD_INSTRUCTIONS.md",
         "README.md",
         "LICENSE",
-        "MANUAL.md"
+        "MANUAL.md",
+        "SECURITY.md",
+        "CODE_OF_CONDUCT.md",
+        "CONTRIBUTING.md",
+        "GITHUB_DESCRIPTION.md"
     ]
     
-    # Copy files
-    print("Copying files...")
-    for file in files_to_copy:
+    # Mac-specific files to copy
+    mac_files = [
+        "resolume_converter.spec"
+    ]
+    
+    # Windows-specific files to copy
+    windows_files = [
+        "resolume_converter_windows.spec",
+        "PC_BUILD_INSTRUCTIONS.md",
+        "create_windows_icon.py",
+        "build_windows.py"
+    ]
+    
+    # Copy core files
+    print("Copying core files...")
+    for file in core_files:
         if os.path.exists(file):
             shutil.copy(file, f"{source_folder}/{file}")
             print(f"Copied {file}")
+        else:
+            print(f"Warning: {file} not found")
+    
+    # Copy Mac-specific files
+    print("Copying Mac-specific files...")
+    for file in mac_files:
+        if os.path.exists(file):
+            shutil.copy(file, f"{source_folder}/build/mac/{file}")
+            print(f"Copied {file} to build/mac/")
+        elif os.path.exists(f"build/mac/{file}"):
+            shutil.copy(f"build/mac/{file}", f"{source_folder}/build/mac/{file}")
+            print(f"Copied build/mac/{file} to source package")
+        else:
+            print(f"Warning: {file} not found")
+    
+    # Copy Windows-specific files
+    print("Copying Windows-specific files...")
+    for file in windows_files:
+        if os.path.exists(file):
+            shutil.copy(file, f"{source_folder}/build/windows/{file}")
+            print(f"Copied {file} to build/windows/")
+        elif os.path.exists(f"build/windows/{file}"):
+            shutil.copy(f"build/windows/{file}", f"{source_folder}/build/windows/{file}")
+            print(f"Copied build/windows/{file} to source package")
         else:
             print(f"Warning: {file} not found")
     
@@ -255,39 +146,67 @@ def create_source_package():
 
 This folder contains everything needed to compile the Resolume Composition Converter application for Windows and macOS.
 
-To build the application:
+## Repository Structure
+
+- `/` - Core application files
+- `/build/mac/` - Mac-specific build files
+- `/build/windows/` - Windows-specific build files
+- `/dist/mac/` - Output directory for Mac builds
+- `/dist/windows/` - Output directory for Windows builds
+- `/screenshots/` - Application screenshots
+
+## Building for macOS
+
+1. Make sure you have Python 3.8 or newer installed
+2. Open a terminal in this folder
+3. Run the following commands:
+   ```
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   pyinstaller build/mac/resolume_converter.spec
+   python convert_manual_simple.py
+   python create_distribution.py
+   ```
+
+## Building for Windows
 
 1. Make sure you have Python 3.8 or newer installed
 2. Open a command prompt in this folder
-3. Follow the instructions in BUILD_INSTRUCTIONS.md
+3. Run the following commands:
+   ```
+   python -m venv venv
+   venv\\Scripts\\activate
+   cd build/windows
+   python build_windows.py
+   ```
 
-For detailed Windows build instructions, please refer to the PC_BUILD_INSTRUCTIONS.md file.
+For detailed Windows build instructions, please refer to the `build/windows/PC_BUILD_INSTRUCTIONS.md` file.
 
-Files included:
+## Core Files
+
 - resolume_gui.py - Main application code
-- resolume_converter.spec - PyInstaller specification file for macOS
-- resolume_converter_windows.spec - PyInstaller specification file for Windows
 - runtime_hook.py - Runtime hook for PyInstaller to fix library loading issues
 - convert_manual_simple.py - Script to create HTML documentation
 - create_distribution.py - Script to create distribution package
-- build_windows.py - Script to build the application on Windows
-- create_windows_icon.py - Script to create Windows icon (.ico) file
 - requirements.txt - Python dependencies
-- BUILD_INSTRUCTIONS.md - General build instructions
-- PC_BUILD_INSTRUCTIONS.md - Detailed Windows build instructions
 - README.md - Application overview
 - MANUAL.md - User manual (Markdown format)
 - LICENSE - MIT License
-- screenshots/ - Application screenshots
+- SECURITY.md - Security policy
+- CODE_OF_CONDUCT.md - Code of conduct
+- CONTRIBUTING.md - Contributing guidelines
 
-Windows-specific files:
-- resolume_converter_windows.spec - Optimized spec file for Windows builds
-- build_windows.py - Script to build the application on Windows
-- create_windows_icon.py - Script to create Windows icon (.ico) file
-- PC_BUILD_INSTRUCTIONS.md - Detailed Windows build instructions
+## Mac-Specific Files
 
-macOS-specific files:
-- resolume_converter.spec - Optimized spec file for macOS builds
+- build/mac/resolume_converter.spec - PyInstaller specification file for macOS
+
+## Windows-Specific Files
+
+- build/windows/resolume_converter_windows.spec - PyInstaller specification file for Windows
+- build/windows/PC_BUILD_INSTRUCTIONS.md - Detailed Windows build instructions
+- build/windows/create_windows_icon.py - Script to create Windows icon (.ico) file
+- build/windows/build_windows.py - Script to build the application on Windows
 """
     
     with open(f"{source_folder}/README.txt", "w") as f:
@@ -298,13 +217,13 @@ macOS-specific files:
     # Create ZIP archive
     print("\nCreating ZIP archive...")
     try:
-        shutil.make_archive(source_folder, 'zip', '.', source_folder)
-        print(f"ZIP archive created: {source_folder}.zip")
+        shutil.make_archive(f"Resolume-Composition-Converter-Source", 'zip', '.', source_folder)
+        print(f"ZIP archive created: Resolume-Composition-Converter-Source.zip")
     except Exception as e:
         print(f"Error creating ZIP archive: {e}")
     
     print(f"\nSource package created successfully: {source_folder}")
-    print(f"ZIP archive: {source_folder}.zip")
+    print(f"ZIP archive: Resolume-Composition-Converter-Source.zip")
     
     return True
 
@@ -313,7 +232,7 @@ def main():
     create_source_package()
     
     print("\nSource package created successfully!")
-    print("You can now share the source package with your friend to build the application on Windows.")
+    print("You can now share the source package with others to build the application on Windows or macOS.")
     
     return 0
 

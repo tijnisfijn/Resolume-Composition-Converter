@@ -1,61 +1,69 @@
 # Resolume Composition Converter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)]()
+[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos)
 
 A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names.
 
-![Resolume Composition Converter](./screenshots/app_screenshot.png)
+![Resolume Composition Converter](screenshots/app_screenshot.png)
 
-## 🚀 Overview
+## Features
 
-Resolume Composition Converter allows you to easily convert your Resolume Arena compositions from one resolution and frame rate to another (e.g., from 1080p25 to 4K60). The application automatically adjusts all relevant parameters in the composition file, including:
+- Convert Resolume Arena compositions between different resolutions
+- Adjust frame rates while preserving timing
+- Maintain composition names and structure
+- Support for various media types (videos and images)
+- Preserve aspect ratio for different image formats (.jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp)
+- Simple and intuitive user interface
 
-- Composition resolution and name
-- Layer and clip dimensions
-- Transform effects (position, anchor points)
-- Timeline durations
-- File paths to media files
+## Repository Structure
 
-This tool is perfect for VJs, video artists, and Resolume users who need to adapt their compositions for different display setups or performance environments.
+- `/` - Core application files
+- `/build/mac/` - Mac-specific build files
+- `/build/windows/` - Windows-specific build files
+- `/dist/mac/` - Output directory for Mac builds
+- `/dist/windows/` - Output directory for Windows builds
+- `/screenshots/` - Application screenshots
+- `/icons/` - Application icons
+- `/documentation/` - Generated documentation
 
-## ✨ Key Features
+## Installation
 
-- Convert compositions between any resolution and frame rate
-- Update file paths to media files in bulk
-- Preserve custom durations and timing
-- Automatically adjust transform effects (including group transforms)
-- Maintain composition names across conversions
-- Simple, intuitive interface with dark mode
-- Drag and drop support
+### macOS
 
-## 📥 Installation
-
-### Download Pre-built Application
-
-#### macOS
-
-1. Download the latest release from the [Releases](https://github.com/tijnisfijn/Resolume-Compostion-Converter/releases) page
-2. Unzip the file
+1. Download the latest release from the [Releases page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
+2. Extract the ZIP file
 3. Drag the `Resolume Composition Converter.app` to your Applications folder
-4. Right-click the app and select "Open" (required only the first time you run the app)
 
-#### Windows and Linux
+### Windows
 
-Coming soon. In the meantime, you can build from source following the instructions below.
+Windows users need to build the application from source:
 
-### Build from Source
+1. Download the source code from the [Releases page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
+2. Follow the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
 
-#### Prerequisites
+## Usage
+
+1. Launch the application
+2. Select your input composition file (.avc)
+3. Choose an output location for the converted file
+4. Set your desired resolution and frame rate
+5. Click "Convert Composition"
+
+For more detailed instructions, please refer to the [User Manual](MANUAL.md).
+
+## Building from Source
+
+### Prerequisites
 
 - Python 3.8 or newer
-- Git (optional, for cloning the repository)
+- pip (Python package installer)
 
-#### macOS
+### macOS
 
 ```bash
 # Clone the repository
-git clone https://github.com/tijnisfijn/Resolume-Compostion-Converter.git
+git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
 cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
@@ -66,16 +74,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Build the application
-pyinstaller resolume_converter.spec
-python convert_manual_simple.py
-python create_distribution.py
+python build/mac/build_mac.py
 ```
 
-#### Windows
+### Windows
 
 ```bash
 # Clone the repository
-git clone https://github.com/tijnisfijn/Resolume-Compostion-Converter.git
+git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
 cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
@@ -86,94 +92,13 @@ venv\Scripts\activate
 pip install -r requirements.txt
 
 # Build the application
-python build_windows.py
+python build/windows/build_windows.py
 ```
 
-## 📖 Quick Start Guide
+## Support
 
-1. Launch the application
-2. Select your input composition file (.avc)
-3. Choose an output location for the converted file
-4. Optionally, update the file paths if your media files have moved
-5. Set your desired resolution and frame rate
-6. Click "Convert Composition"
+For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) on our GitHub repository.
 
-## 🔧 Advanced Usage
+## License
 
-### File Path Replacement
-
-If you've moved your media files to a new location, you can use the "Old File Path" and "New File Path" fields to update all file references in the composition:
-
-1. Enter the old path where your media files were located
-2. Enter the new path where your media files are now
-3. The converter will update all file references in the composition
-
-### Custom Resolution and Frame Rate
-
-You can set any custom resolution and frame rate:
-
-1. Enter your original composition's resolution and frame rate in the "Original Settings" section
-2. Enter your desired output resolution and frame rate in the "New Settings" section
-3. The converter will calculate the appropriate scaling factors
-
-## 🧩 How It Works
-
-The converter works by:
-
-1. Parsing the XML structure of the .avc file
-2. Calculating scaling factors based on your desired resolution and frame rate
-3. Adjusting all relevant parameters in the composition
-4. Preserving custom durations and timing
-5. Updating file paths if specified
-6. Writing the modified XML to a new .avc file
-
-## 💻 Development
-
-### Project Structure
-
-- `resolume_gui.py` - Main application code
-- `convert_manual_simple.py` - Script to convert the manual to HTML
-- `create_distribution.py` - Script to create the distribution package
-- `build_windows.py` - Script to build the application for Windows
-
-### Requirements
-
-- Python 3.8 or newer
-- Dependencies listed in `requirements.txt`
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Commit your changes (`git commit -m 'Add some amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
-Please make sure to update tests as appropriate and follow the code style of the project.
-
-## 📋 Requirements
-
-- macOS 10.14 or later (for the pre-built application)
-- 64-bit processor
-- Python 3.8 or newer (for building from source)
-
-## 🐛 Known Issues
-
-- Windows and Linux builds are still in development
-- Some complex effects may require manual adjustment after conversion
-
-## 📝 License
-
-This software is released under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Compostion-Converter/issues) on our GitHub repository.
-
-## 🙏 Acknowledgements
-
-- [Resolume](https://resolume.com/) for creating an amazing VJ software
-- All contributors and testers who have helped improve this tool
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
