@@ -216,6 +216,7 @@ def create_source_package():
         "convert_manual_simple.py",
         "create_distribution.py",
         "build_windows.py",
+        "create_windows_icon.py",
         "requirements.txt",
         "BUILD_INSTRUCTIONS.md",
         "README.md",
@@ -261,6 +262,7 @@ Files included:
 - convert_manual_simple.py - Script to create HTML documentation
 - create_distribution.py - Script to create distribution package
 - build_windows.py - Script to build the application on Windows
+- create_windows_icon.py - Script to create Windows icon (.ico) file
 - requirements.txt - Python dependencies
 - BUILD_INSTRUCTIONS.md - Detailed build instructions
 - README.md - Application overview
@@ -271,6 +273,7 @@ Files included:
 Windows-specific files:
 - resolume_converter_windows.spec - Optimized spec file for Windows builds
 - build_windows.py - Script to build the application on Windows
+- create_windows_icon.py - Script to create Windows icon (.ico) file
 
 macOS-specific files:
 - resolume_converter.spec - Optimized spec file for macOS builds
