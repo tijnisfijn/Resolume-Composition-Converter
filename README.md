@@ -35,7 +35,7 @@ This tool is perfect for VJs, video artists, and Resolume users who need to adap
 
 #### macOS
 
-1. Download the latest release from the [Releases](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases) page
+1. Download the latest release from the [Releases](https://github.com/tijnisfijn/Resolume-Compostion-Converter/releases) page
 2. Unzip the file
 3. Drag the `Resolume Composition Converter.app` to your Applications folder
 4. Right-click the app and select "Open" (required only the first time you run the app)
@@ -55,7 +55,7 @@ Coming soon. In the meantime, you can build from source following the instructio
 
 ```bash
 # Clone the repository
-git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
+git clone https://github.com/tijnisfijn/Resolume-Compostion-Converter.git
 cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
@@ -75,7 +75,7 @@ python create_distribution.py
 
 ```bash
 # Clone the repository
-git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
+git clone https://github.com/tijnisfijn/Resolume-Compostion-Converter.git
 cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
@@ -171,7 +171,7 @@ This software is released under the MIT License. See the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) on our GitHub repository.
+For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Compostion-Converter/issues) on our GitHub repository.
 
 ## 🙏 Acknowledgements
 
