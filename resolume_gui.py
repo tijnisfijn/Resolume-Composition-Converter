@@ -339,8 +339,31 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
         if primary_source is not None:
             source_type = primary_source.get("type", "")
             if source_type == "VideoFormatReaderSource":
-                primary_source.set("width", str(int(1920 * resolution_factor)))
-                primary_source.set("height", str(int(1080 * resolution_factor)))
+                # Check if this is an image file by examining the file extension
+                is_image = False
+                video_source = clip.find(".//VideoFormatReaderSource")
+                if video_source is not None:
+                    file_path = video_source.get("fileName", "")
+                    if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')):
+                        is_image = True
+                        print(f"Detected image file: {file_path}")
+                
+                if is_image:
+                    # For images, preserve the original aspect ratio by scaling both dimensions
+                    try:
+                        current_width = int(primary_source.get("width"))
+                        current_height = int(primary_source.get("height"))
+                        primary_source.set("width", str(int(current_width * resolution_factor)))
+                        primary_source.set("height", str(int(current_height * resolution_factor)))
+                        print(f"Preserving image aspect ratio: {current_width}x{current_height} -> {int(current_width * resolution_factor)}x{int(current_height * resolution_factor)}")
+                    except (ValueError, TypeError):
+                        # If we can't parse the values, use default scaling
+                        primary_source.set("width", str(int(1920 * resolution_factor)))
+                        primary_source.set("height", str(int(1080 * resolution_factor)))
+                else:
+                    # For videos, use the standard 16:9 scaling
+                    primary_source.set("width", str(int(1920 * resolution_factor)))
+                    primary_source.set("height", str(int(1080 * resolution_factor)))
             else:
                 # For generator/router clips, we still want to scale the resolution
                 # but we need to be careful about how we do it

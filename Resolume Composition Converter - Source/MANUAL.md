@@ -105,6 +105,13 @@ The Resolume Composition Converter supports various types of clips:
 - All video parameters are scaled, including resolution, position, and anchor points
 - File paths are updated to point to your upgraded media files
 
+### Image Files
+- Supports various image formats (.jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp)
+- Original aspect ratio is preserved during conversion
+- Square images remain square, wide images remain wide, etc.
+- All transform parameters are properly scaled
+- File paths are updated to point to your upgraded media files
+
 ### Generator Clips
 - Built-in Resolume generators (e.g., Solid Color, Gradient, Noise)
 - Position, anchor points, and other transform parameters are properly scaled

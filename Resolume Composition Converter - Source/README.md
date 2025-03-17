@@ -2,9 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)]()
-[![Release](https://img.shields.io/github/v/release/yourusername/resolume-composition-converter?include_prereleases&sort=semver)](https://github.com/yourusername/resolume-composition-converter/releases)
 
-A desktop application for converting Resolume Arena composition files (.avc) to different resolutions and frame rates.
+A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names.
 
 ![Resolume Composition Converter](./screenshots/app_screenshot.png)
 
@@ -25,7 +24,7 @@ This tool is perfect for VJs, video artists, and Resolume users who need to adap
 - Convert compositions between any resolution and frame rate
 - Update file paths to media files in bulk
 - Preserve custom durations and timing
-- Automatically adjust transform effects
+- Automatically adjust transform effects (including group transforms)
 - Maintain composition names across conversions
 - Simple, intuitive interface with dark mode
 - Drag and drop support
@@ -36,7 +35,7 @@ This tool is perfect for VJs, video artists, and Resolume users who need to adap
 
 #### macOS
 
-1. Download the latest release from the [Releases](https://github.com/yourusername/resolume-composition-converter/releases) page
+1. Download the latest release from the [Releases](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases) page
 2. Unzip the file
 3. Drag the `Resolume Composition Converter.app` to your Applications folder
 4. Right-click the app and select "Open" (required only the first time you run the app)
@@ -56,8 +55,8 @@ Coming soon. In the meantime, you can build from source following the instructio
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/resolume-composition-converter.git
-cd resolume-composition-converter
+git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
+cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
 python -m venv venv
@@ -76,8 +75,8 @@ python create_distribution.py
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/resolume-composition-converter.git
-cd resolume-composition-converter
+git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
+cd Resolume-Composition-Converter
 
 # Create and activate a virtual environment
 python -m venv venv
@@ -172,7 +171,7 @@ This software is released under the MIT License. See the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For help and support, please [open an issue](https://github.com/yourusername/resolume-composition-converter/issues) on our GitHub repository.
+For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) on our GitHub repository.
 
 ## 🙏 Acknowledgements
 

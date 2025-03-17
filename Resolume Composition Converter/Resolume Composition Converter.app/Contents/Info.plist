@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Resolume Composition Converter</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>avc</string>
+				<string>xml</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Resolume Composition</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>Resolume Composition Converter</string>
+	<key>CFBundleIconFile</key>
+	<string>app_icon.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.resolumeconverter.app</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Resolume Composition Converter</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0</string>
+	<key>LSBackgroundOnly</key>
+	<false/>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>DYLD_FRAMEWORK_PATH</key>
+		<string>@executable_path/../Frameworks:@executable_path/../Resources</string>
+		<key>DYLD_LIBRARY_PATH</key>
+		<string>@executable_path/../Frameworks:@executable_path/../Resources</string>
+		<key>PYTHONIOENCODING</key>
+		<string>utf-8</string>
+	</dict>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.14</string>
+	<key>NSAppleScriptEnabled</key>
+	<false/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2025</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<false/>
+</dict>
+</plist>
