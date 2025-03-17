@@ -158,9 +158,17 @@ def main():
     print("\\nInstalling requirements...")
     subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
     
+    # Install Pillow for icon creation
+    print("\\nInstalling Pillow for icon creation...")
+    subprocess.run([sys.executable, "-m", "pip", "install", "Pillow"], check=True)
+    
+    # Create Windows icon
+    print("\\nCreating Windows icon...")
+    subprocess.run([sys.executable, "create_windows_icon.py"], check=True)
+    
     # Build the application
     print("\\nBuilding application with PyInstaller...")
-    subprocess.run([sys.executable, "-m", "PyInstaller", "resolume_converter.spec"], check=True)
+    subprocess.run([sys.executable, "-m", "PyInstaller", "resolume_converter_windows.spec"], check=True)
     
     # Create HTML documentation
     print("\\nCreating HTML documentation...")
