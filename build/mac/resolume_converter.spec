@@ -76,8 +76,8 @@ app = BUNDLE(
     icon=os.path.join(repo_root, 'icons/app_icon.icns'),
     bundle_identifier='com.tijnisfijn.resolume-composition-converter',
     info_plist={
-        'CFBundleShortVersionString': '1.0.2',
-        'CFBundleVersion': '1.0.2',
+        'CFBundleShortVersionString': '1.0.3',
+        'CFBundleVersion': '1.0.3',
         'NSHighResolutionCapable': 'True',
         'NSHumanReadableCopyright': '© 2025 Tijn Schuurmans',
     },

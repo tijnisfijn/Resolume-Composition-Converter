@@ -4,7 +4,38 @@ block_cipher = None
 
 # Get the repository root directory
 import os
-repo_root = os.path.abspath(os.path.join(os.path.dirname(SPECPATH), "../.."))
+import sys
+
+# Print current directory for debugging
+print(f"Current directory: {os.getcwd()}")
+print(f"Spec file directory: {os.path.dirname(SPECPATH)}")
+
+# Try to find resolume_gui.py in various locations
+possible_locations = [
+    # Standard location (same directory as build/windows)
+    os.path.abspath(os.path.join(os.path.dirname(SPECPATH), "../..")),
+    # Current directory
+    os.getcwd(),
+    # Parent directory (for nested extractions)
+    os.path.dirname(os.getcwd()),
+    # Explicit path based on extraction pattern
+    os.path.dirname(os.path.dirname(os.getcwd()))
+]
+
+# Find the first location that contains resolume_gui.py
+repo_root = None
+for location in possible_locations:
+    test_path = os.path.join(location, 'resolume_gui.py')
+    print(f"Testing path: {test_path}")
+    if os.path.exists(test_path):
+        repo_root = location
+        print(f"Found resolume_gui.py at: {repo_root}")
+        break
+
+# If we couldn't find it, use the current directory as a fallback
+if repo_root is None:
+    repo_root = os.getcwd()
+    print(f"WARNING: Could not find resolume_gui.py, using current directory: {repo_root}")
 
 # Add the MANUAL.md and screenshots to the data files
 datas = [

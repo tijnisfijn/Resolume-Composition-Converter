@@ -12,15 +12,54 @@ def create_windows_icon():
     print("Creating Windows icon...")
     
     # Get the repository root directory
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"Script directory: {script_dir}")
+    
+    # Try to find the repository root directory
+    repo_root = os.path.abspath(os.path.join(script_dir, "../.."))
+    print(f"Repository root directory: {repo_root}")
+    
+    # Check if icons/app_icon.png exists in the repository root directory
+    png_path = os.path.join(repo_root, "icons/app_icon.png")
+    if not os.path.exists(png_path):
+        print(f"Warning: PNG file not found at {png_path}")
+        
+        # Try to find icons/app_icon.png in various locations
+        possible_locations = [
+            # Current directory
+            os.getcwd(),
+            # Parent directory (for nested extractions)
+            os.path.dirname(os.getcwd()),
+            # Explicit path based on extraction pattern
+            os.path.dirname(os.path.dirname(os.getcwd()))
+        ]
+        
+        found = False
+        for location in possible_locations:
+            test_path = os.path.join(location, "icons/app_icon.png")
+            print(f"Testing path: {test_path}")
+            if os.path.exists(test_path):
+                repo_root = location
+                png_path = test_path
+                print(f"Found icons/app_icon.png at: {png_path}")
+                found = True
+                break
+        
+        if not found:
+            print(f"Error: PNG file not found in any of the expected locations")
+            return False
     
     # Change to the repository root directory
+    print(f"Changing to repository root directory: {repo_root}")
     os.chdir(repo_root)
     
-    # Check if the PNG file exists
+    # Verify that we're in the correct directory
+    print(f"Current working directory: {os.getcwd()}")
+    
+    # Check if the PNG file exists in the current directory
     png_path = "icons/app_icon.png"
     if not os.path.exists(png_path):
-        print(f"Error: PNG file not found at {png_path}")
+        print(f"Error: PNG file not found at {png_path} after changing directory")
         return False
     
     # Create the ICO file

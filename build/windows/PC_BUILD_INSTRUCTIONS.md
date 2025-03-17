@@ -15,11 +15,16 @@ The source package has the following structure:
 1. **Download** the "Resolume-Composition-Converter-Source.zip" file from the GitHub release page.
 
 2. **Extract** the ZIP file to a location of your choice.
+   - **IMPORTANT**: Make sure to extract directly to a folder, not to a nested directory.
+   - For example, extract to `D:\Downloads\Resolume-Composition-Converter-Source\`
+   - NOT to `D:\Downloads\Resolume-Composition-Converter-Source\Resolume-Composition-Converter-Source\`
 
 3. **Navigate** to the extracted folder:
    ```
    cd "Resolume-Composition-Converter-Source"
    ```
+   - Verify that you can see the main files like `resolume_gui.py` in this directory.
+   - If you see another folder named "Resolume-Composition-Converter-Source" inside, navigate into that folder.
 
 4. **Create and activate** a virtual environment:
    ```
@@ -42,19 +47,33 @@ The source package has the following structure:
 
 ### Common Issues
 
-1. **"Spec file not found" error**:
+1. **"script 'path\to\resolume_gui.py' not found" error**:
+   - This usually happens when the source package is extracted to a nested directory
+   - Make sure you're in the correct directory where `resolume_gui.py` is located
+   - Run `dir` to verify that `resolume_gui.py` is in your current directory
+   - If you don't see `resolume_gui.py`, navigate to the correct directory
+
+2. **"Spec file not found" error**:
    - Make sure you're in the root directory of the extracted source package
    - Verify that the file `build/windows/resolume_converter_windows.spec` exists
 
-2. **"No module named 'PIL'" error**:
+3. **"No module named 'PIL'" error**:
    - Make sure you've installed Pillow: `pip install Pillow`
 
-3. **"No module named 'PyInstaller'" error**:
+4. **"No module named 'PyInstaller'" error**:
    - Make sure you've installed the requirements: `pip install -r requirements.txt`
 
-4. **Icon creation fails**:
+5. **Icon creation fails**:
    - Verify that the `icons/app_icon.png` file exists
    - Make sure Pillow is installed: `pip install Pillow`
+   
+6. **Nested directory issues**:
+   - If you extracted the ZIP file and see a nested directory structure like:
+     ```
+     D:\Downloads\Resolume-Composition-Converter-Source\Resolume-Composition-Converter-Source\
+     ```
+   - Navigate to the innermost directory where `resolume_gui.py` is located
+   - Or re-extract the ZIP file directly to a non-nested location
 
 ### Checking File Structure
 

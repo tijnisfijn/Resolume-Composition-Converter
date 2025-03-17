@@ -13,10 +13,48 @@ def main():
     print("Building Resolume Composition Converter for Windows...")
     
     # Get the repository root directory
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"Script directory: {script_dir}")
+    
+    # Try to find the repository root directory
+    repo_root = os.path.abspath(os.path.join(script_dir, "../.."))
+    print(f"Repository root directory: {repo_root}")
+    
+    # Check if resolume_gui.py exists in the repository root directory
+    if not os.path.exists(os.path.join(repo_root, "resolume_gui.py")):
+        print(f"Warning: resolume_gui.py not found in {repo_root}")
+        
+        # Try to find resolume_gui.py in various locations
+        possible_locations = [
+            # Current directory
+            os.getcwd(),
+            # Parent directory (for nested extractions)
+            os.path.dirname(os.getcwd()),
+            # Explicit path based on extraction pattern
+            os.path.dirname(os.path.dirname(os.getcwd()))
+        ]
+        
+        for location in possible_locations:
+            test_path = os.path.join(location, "resolume_gui.py")
+            print(f"Testing path: {test_path}")
+            if os.path.exists(test_path):
+                repo_root = location
+                print(f"Found resolume_gui.py at: {repo_root}")
+                break
     
     # Change to the repository root directory
+    print(f"Changing to repository root directory: {repo_root}")
     os.chdir(repo_root)
+    
+    # Verify that we're in the correct directory
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Files in current directory: {os.listdir('.')}")
+    
+    # Check if resolume_gui.py exists in the current directory
+    if not os.path.exists("resolume_gui.py"):
+        print("ERROR: resolume_gui.py not found in the current directory.")
+        print("Please make sure you're in the correct directory and try again.")
+        return 1
     
     # Activate virtual environment if not already activated
     if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):

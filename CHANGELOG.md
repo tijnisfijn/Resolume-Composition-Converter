@@ -2,6 +2,12 @@
 
 All notable changes to the Resolume Composition Converter will be documented in this file.
 
+## [1.0.3] - 2025-03-17
+
+### Fixed
+- Windows build process: Improved robustness of the Windows build process to handle cases where the source package is extracted to a nested directory.
+- Windows build instructions: Updated the PC_BUILD_INSTRUCTIONS.md file with clearer instructions and troubleshooting steps for Windows users.
+
 ## [1.0.2] - 2025-03-17
 
 ### Fixed
