@@ -7,6 +7,14 @@ A desktop application for converting Resolume Arena composition files (.avc) bet
 
 ![Resolume Composition Converter](screenshots/app_screenshot.png)
 
+## Open Source Project
+
+This is an open-source project created by a single developer. Contributions, improvements, and feedback from the community are welcome and encouraged! If you'd like to contribute, please check out the [Future Roadmap](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Future-Roadmap) or the [Issues](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) page.
+
+## Disclaimer
+
+**Use at your own risk.** While this software has been tested, it is not regularly tested on all possible configurations and scenarios. Always make a backup of your composition files before using this converter. The author is not responsible for any data loss or damage that may occur from using this software.
+
 ## Features
 
 - Convert Resolume Arena compositions between different resolutions
@@ -98,6 +106,16 @@ python build/windows/build_windows.py
 ## Support
 
 For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) on our GitHub repository.
+
+## Contributing
+
+Contributions are welcome! Whether you're a developer, designer, or user with ideas, there are many ways to help improve this project:
+
+1. Check the [Issues](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) page
+2. Open a new issue to discuss your idea
+3. Fork the repository and submit a pull request
+
+See the [Future Roadmap](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Future-Roadmap) for ideas on potential features that could be implemented.
 
 ## License
 
