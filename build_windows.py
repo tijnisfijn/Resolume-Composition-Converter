@@ -22,7 +22,7 @@ def main():
     
     # Build the application
     print("\nBuilding application with PyInstaller...")
-    subprocess.run([sys.executable, "-m", "PyInstaller", "resolume_converter.spec"], check=True)
+    subprocess.run([sys.executable, "-m", "PyInstaller", "resolume_converter_windows.spec"], check=True)
     
     # Create HTML documentation
     print("\nCreating HTML documentation...")
