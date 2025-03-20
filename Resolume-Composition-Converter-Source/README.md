@@ -21,8 +21,9 @@ This is an open-source project created by a single developer. Contributions, imp
 - Adjust frame rates while preserving timing
 - Maintain composition names and structure
 - Support for various media types (videos and images)
+- Replace media files with different formats (e.g., .MP4 with .MOV)
 - Preserve aspect ratio for different image formats (.jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp)
-- Simple and intuitive user interface
+- Simple and intuitive user interface with drag-and-drop support
 
 ## Repository Structure
 
@@ -56,7 +57,9 @@ Windows users need to build the application from source:
 2. Select your input composition file (.avc)
 3. Choose an output location for the converted file
 4. Set your desired resolution and frame rate
-5. Click "Convert Composition"
+5. Optionally, provide paths to your old and new media files if you want to update file references
+6. Check "Ignore file extensions" if you want to replace media files with different formats (e.g., .MP4 with .MOV)
+7. Click "Convert Composition"
 
 For more detailed instructions, please refer to the [User Manual](MANUAL.md).
 
