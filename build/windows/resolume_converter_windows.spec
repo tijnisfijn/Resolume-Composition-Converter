@@ -22,36 +22,36 @@ possible_locations = [
     os.path.dirname(os.path.dirname(os.getcwd()))
 ]
 
-# Find the first location that contains resolume_gui.py
+# Find the first location that contains src/resolume_gui.py
 repo_root = None
 for location in possible_locations:
-    test_path = os.path.join(location, 'resolume_gui.py')
+    test_path = os.path.join(location, 'src/resolume_gui.py')
     print(f"Testing path: {test_path}")
     if os.path.exists(test_path):
         repo_root = location
-        print(f"Found resolume_gui.py at: {repo_root}")
+        print(f"Found src/resolume_gui.py at: {repo_root}")
         break
 
 # If we couldn't find it, use the current directory as a fallback
 if repo_root is None:
     repo_root = os.getcwd()
-    print(f"WARNING: Could not find resolume_gui.py, using current directory: {repo_root}")
+    print(f"WARNING: Could not find src/resolume_gui.py, using current directory: {repo_root}")
 
 # Add the MANUAL.md and screenshots to the data files
 datas = [
-    (os.path.join(repo_root, 'MANUAL.md'), '.'),
+    (os.path.join(repo_root, 'docs/MANUAL.md'), '.'),
     (os.path.join(repo_root, 'screenshots/app_screenshot.png'), 'screenshots')
 ]
 
 a = Analysis(
-    [os.path.join(repo_root, 'resolume_gui.py')],
+    [os.path.join(repo_root, 'src/resolume_gui.py')],
     pathex=[],
     binaries=[],
     datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[os.path.join(repo_root, 'runtime_hook.py')],  # Add our runtime hook
+    runtime_hooks=[os.path.join(repo_root, 'src/runtime_hook.py')],  # Add our runtime hook
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

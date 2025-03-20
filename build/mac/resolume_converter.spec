@@ -9,12 +9,12 @@ repo_root = '/Users/tijn/Code/UpscaleComp'
 print(f"Repository root directory: {repo_root}")
 
 # Use absolute path for the main script
-main_script = os.path.join(repo_root, 'resolume_gui.py')
+main_script = os.path.join(repo_root, 'src/resolume_gui.py')
 print(f"Main script path: {main_script}")
 
 # Add the MANUAL.md and screenshots to the data files
 datas = [
-    (os.path.join(repo_root, 'MANUAL.md'), '.'),
+    (os.path.join(repo_root, 'docs/MANUAL.md'), '.'),
     (os.path.join(repo_root, 'screenshots/app_screenshot.png'), 'screenshots')
 ]
 
@@ -26,7 +26,7 @@ a = Analysis(
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[os.path.join(repo_root, 'runtime_hook.py')],  # Add our runtime hook
+    runtime_hooks=[os.path.join(repo_root, 'src/runtime_hook.py')],  # Add our runtime hook
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
@@ -76,8 +76,8 @@ app = BUNDLE(
     icon=os.path.join(repo_root, 'icons/app_icon.icns'),
     bundle_identifier='com.tijnisfijn.resolume-composition-converter',
     info_plist={
-        'CFBundleShortVersionString': '1.0.3',
-        'CFBundleVersion': '1.0.3',
+        'CFBundleShortVersionString': '1.1.1',
+        'CFBundleVersion': '1.1.1',
         'NSHighResolutionCapable': 'True',
         'NSHumanReadableCopyright': '© 2025 Tijn Schuurmans',
     },
