@@ -1,1 +1,0 @@
-[Resolume Composition Converter](https://github.com/tijnisfijn/Resolume-Composition-Converter) - A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates.
