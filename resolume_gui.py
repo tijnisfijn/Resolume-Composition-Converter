@@ -2,6 +2,10 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import xml.etree.ElementTree as ET
 import os
+import webbrowser
+import threading
+from version import get_version
+import update_checker
 
 # Try to import TkinterDnD for drag and drop functionality
 try:
@@ -945,6 +949,9 @@ class ResolumeConverterApp:
         
         # Set up drag and drop for the whole window
         self.setup_drag_and_drop()
+        
+        # Check for updates on startup (non-blocking, after a delay)
+        self.root.after(2000, self.check_for_updates_silently)
     
     def create_widgets(self):
         # Create a main frame to hold everything
@@ -1548,12 +1555,92 @@ class ResolumeConverterApp:
                 
         except Exception as e:
             messagebox.showerror("Error", f"Could not open the manual: {str(e)}")
+    
+    def check_for_updates(self, show_if_current=True):
+        """
+        Check for updates and show a dialog with the result
+        Args:
+            show_if_current: If True, show a message even if no update is available
+        """
+        # Show a "checking" message for better UX
+        checking_window = tk.Toplevel(self.root)
+        checking_window.title("Checking for Updates")
+        checking_window.geometry("300x100")
+        checking_window.resizable(False, False)
+        checking_window.transient(self.root)
+        checking_window.grab_set()
+        
+        # Center the window
+        checking_window.update_idletasks()
+        width = checking_window.winfo_width()
+        height = checking_window.winfo_height()
+        x = (checking_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (checking_window.winfo_screenheight() // 2) - (height // 2)
+        checking_window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        
+        # Add a message and progress indicator
+        message = ttk.Label(checking_window, text="Checking for updates...", font=('Helvetica', 12))
+        message.pack(pady=20)
+        
+        # Use after to allow the window to be drawn before checking
+        def perform_check():
+            # Check for updates
+            update_available, latest_version, download_url, release_notes = update_checker.check_for_updates(force=True)
+            
+            # Close the checking window
+            checking_window.destroy()
+            
+            if update_available:
+                # Show update available dialog
+                result = messagebox.askyesno(
+                    "Update Available",
+                    f"A new version ({latest_version}) is available!\n\n"
+                    f"You are currently using version {get_version()}.\n\n"
+                    "Would you like to download the update now?",
+                    icon="info"
+                )
+                if result:
+                    # Open the download URL in the default browser
+                    webbrowser.open(download_url)
+            elif show_if_current:
+                # Show "up to date" message
+                messagebox.showinfo(
+                    "No Updates Available",
+                    f"You are using the latest version ({get_version()}).",
+                    icon="info"
+                )
+        
+        checking_window.after(100, perform_check)
+    
+    def check_for_updates_silently(self):
+        """Check for updates without showing a dialog unless an update is available"""
+        # Run the check in a separate thread to avoid blocking the UI
+        def check_thread():
+            update_available, latest_version, download_url, release_notes = update_checker.check_for_updates()
+            
+            if update_available:
+                # Use after to schedule the dialog on the main thread
+                self.root.after(0, lambda: self._show_update_dialog(latest_version, download_url))
+        
+        threading.Thread(target=check_thread, daemon=True).start()
+    
+    def _show_update_dialog(self, latest_version, download_url):
+        """Show the update available dialog"""
+        result = messagebox.askyesno(
+            "Update Available",
+            f"A new version ({latest_version}) is available!\n\n"
+            f"You are currently using version {get_version()}.\n\n"
+            "Would you like to download the update now?",
+            icon="info"
+        )
+        if result:
+            webbrowser.open(download_url)
             
     def show_about(self):
         """Show the About dialog"""
         messagebox.showinfo("About",
-                           "Resolume Composition Converter\n\n"
-                           "Version 1.0.0\n\n"
+                           f"Resolume Composition Converter\n\n"
+                           f"Version {get_version()}\n\n"
                            "A tool for converting Resolume Arena compositions to different resolutions and frame rates.\n\n"
                            "© 2025 Resolume Composition Converter")
 
@@ -1584,6 +1671,7 @@ if __name__ == "__main__":
     
     # Create Help menu
     help_menu = tk.Menu(menubar, tearoff=0)
+    help_menu.add_command(label="Check for Updates", command=app.check_for_updates)
     help_menu.add_command(label="User Manual", command=app.open_manual_html)
     help_menu.add_separator()
     help_menu.add_command(label="About", command=app.show_about)
