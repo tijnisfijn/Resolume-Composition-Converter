@@ -2,7 +2,7 @@
 
 ## Repository Description
 ```
-A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names.
+A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names. Now with media format conversion: replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.
 ```
 
 ## Repository Topics
