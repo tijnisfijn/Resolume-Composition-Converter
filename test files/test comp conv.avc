@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Composition name="UpscaleComp" uniqueId="1741957118058" numDecks="3" currentDeckIndex="0" numLayers="3" numColumns="9" compositionIsRelative="0">
+<Composition name="test comp conv" uniqueId="1741957118058" numDecks="3" currentDeckIndex="0" numLayers="3" numColumns="9" compositionIsRelative="0">
 	<versionInfo name="Resolume Arena" majorVersion="7" minorVersion="22" microVersion="4" revision="43686" />
-	<CompositionInfo name="UpscaleComp" description="" width="3840" height="2160">
+	<CompositionInfo name="test comp conv" description="" width="3840" height="2160">
 		<DeckInfo name="Recorded" id="1742049200252" closed="0" />
 		<DeckInfo name="empty" id="1742049200258" closed="0" />
 		<DeckInfo name="empty" id="1742049200264" closed="0" />
 	</CompositionInfo>
 	<Params name="Params">
-		<Param name="Name" T="STRING" default="" value="UpscaleComp" />
+		<Param name="Name" T="STRING" default="" value="test comp conv" />
 		<ParamRange name="Speed" T="DOUBLE" default="1" value="0.9999999999999741318">
 			<PhaseSourceStatic name="PhaseSourceStatic" />
 		</ParamRange>
@@ -396,7 +396,7 @@
 		<Column uniqueId="1742049240268" groupIndex="0" columnIndex="8" />
 		<Clip name="Clip" uniqueId="1742049200270" layerIndex="0" columnIndex="0">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/Test Movie.mov" />
+				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/Test Movie.mov" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="Test Movie" value="Test Movie" />
@@ -485,7 +485,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="3840" height="2160" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/Test Movie.mov" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/Test Movie.mov" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">
@@ -576,7 +576,7 @@
 		<Clip name="Clip" uniqueId="1742049200286" layerIndex="2" columnIndex="0" />
 		<Clip name="Clip" uniqueId="1742049200283" layerIndex="0" columnIndex="1">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/Test Movie.mov" />
+				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/Test Movie.mov" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="Test Movie" value="Test Movie" />
@@ -644,7 +644,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="3840" height="2160" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/Test Movie.mov" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/Test Movie.mov" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">
@@ -1158,7 +1158,7 @@
 		<Clip name="Clip" uniqueId="1742049200288" layerIndex="2" columnIndex="3" />
 		<Clip name="Clip" uniqueId="1742049200273" layerIndex="0" columnIndex="4">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
+				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="hyperspace-jump-through-the-stars-to-a-distant-space" value="hyperspace-jump-through-the-stars-to-a-distant-space" />
@@ -1215,7 +1215,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="3840" height="2160" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/DVX 4k/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">

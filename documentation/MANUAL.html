@@ -126,6 +126,18 @@
     clip1.mp4  (same name, but 4K version)
     clip2.mp4  (same name, but 4K version)
     background.mp4  (same name, but 4K version)</code></p>
+<h3 id="using-different-file-formats">Using Different File Formats</h3>
+<p>With the "Ignore file extensions" option enabled, you can replace media files with different formats:</p>
+<p><code>/Videos/
+  /Original_1080p/
+    clip1.mp4
+    clip2.mp4
+    background.mp4
+  /Upgraded_4K/
+    clip1.mov  (same base name, but different format)
+    clip2.mov  (same base name, but different format)
+    background.mov  (same base name, but different format)</code></p>
+<p>This is particularly useful when upgrading from standard video formats (MP4) to optimized formats like MOV that are better suited for Resolume performance.</p>
 <h2 id="converting-a-composition">Converting a Composition</h2>
 <p>Follow these steps to convert your composition:</p>
 <ol>
@@ -149,10 +161,15 @@
 <li>Click "Browse" to select the folder containing your original media files</li>
 </ul>
 </li>
-<li>
-<p>New File Path: Enter the base path where your upgraded media files are located</p>
-<ul>
+<li>New File Path: Enter the base path where your upgraded media files are located<ul>
 <li>Click "Browse" to select the folder containing your upgraded media files</li>
+</ul>
+</li>
+<li>
+<p>Ignore file extensions: Check this box if your upgraded media files have different extensions</p>
+<ul>
+<li>For example, if you're replacing .MP4 files with .MOV files</li>
+<li>When checked, files only need to match by base name (without extension)</li>
 </ul>
 </li>
 <li>
@@ -236,19 +253,40 @@
 - You're sharing the composition with someone who has a different folder structure
 - <strong>Note</strong>: File paths only affect video file clips, not generators or routers</p>
 <h3 id="how-file-paths-work">How File Paths Work</h3>
-<p>The converter performs a simple text replacement in the composition file:</p>
+<p>The converter performs a text replacement in the composition file:</p>
 <ol>
 <li>It finds all instances of the "Old File Path" in the composition</li>
 <li>It replaces them with the "New File Path"</li>
 </ol>
-<h3 id="example">Example</h3>
+<h3 id="ignore-file-extensions-option">Ignore File Extensions Option</h3>
+<p>The "Ignore file extensions" checkbox allows you to replace media files with different formats:</p>
+<ul>
+<li>When <strong>unchecked</strong> (default): Files must have the exact same name and extension in both locations</li>
+<li>When <strong>checked</strong>: Files only need to have the same base name, but can have different extensions</li>
+</ul>
+<p>This feature is particularly useful when:
+- Converting from standard formats (MP4) to optimized formats like MOV
+- Upgrading image files from JPG to PNG or other formats
+- Maintaining the same content but in different file formats</p>
+<h3 id="example-standard-path-replacement">Example: Standard Path Replacement</h3>
 <p>If your original composition references files like:
 <code>C:/Users/VJ/Videos/Original_1080p/clip1.mp4</code></p>
 <p>And you set:
 - Old File Path: <code>C:/Users/VJ/Videos/Original_1080p</code>
-- New File Path: <code>C:/Users/VJ/Videos/Upgraded_4K</code></p>
+- New File Path: <code>C:/Users/VJ/Videos/Upgraded_4K</code>
+- Ignore file extensions: <strong>Unchecked</strong></p>
 <p>The converted composition will reference:
 <code>C:/Users/VJ/Videos/Upgraded_4K/clip1.mp4</code></p>
+<h3 id="example-ignore-extensions-enabled">Example: Ignore Extensions Enabled</h3>
+<p>If your original composition references files like:
+<code>C:/Users/VJ/Videos/Original_1080p/clip1.mp4</code></p>
+<p>And you set:
+- Old File Path: <code>C:/Users/VJ/Videos/Original_1080p</code>
+- New File Path: <code>C:/Users/VJ/Videos/Upgraded_4K</code>
+- Ignore file extensions: <strong>Checked</strong></p>
+<p>The converted composition will reference:
+<code>C:/Users/VJ/Videos/Upgraded_4K/clip1.mov</code></p>
+<p>(Assuming clip1.mov exists in the Upgraded_4K folder)</p>
 <h3 id="what-happens-if-you-dont-specify-file-paths">What Happens If You Don't Specify File Paths</h3>
 <p>If you leave the "Old File Path" and "New File Path" fields empty:</p>
 <ol>

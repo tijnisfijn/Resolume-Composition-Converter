@@ -14,9 +14,11 @@ def main():
     
     # Get the repository root directory
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    print(f"Repository root directory: {repo_root}")
     
     # Change to the repository root directory
     os.chdir(repo_root)
+    print(f"Current working directory: {os.getcwd()}")
     
     # Activate virtual environment if not already activated
     if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):

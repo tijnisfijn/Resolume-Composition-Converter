@@ -495,7 +495,7 @@
 		</Clip>
 		<Clip name="Clip" uniqueId="1742049200278" layerIndex="1" columnIndex="0">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/slice scale test 2025-02-12 at 14.21.43.png" />
+				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/slice scale test 2025-02-12 at 14.21.43.jpg" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="slice scale test 2025-02-12 at 14.21.43" value="slice scale test 2025-02-12 at 14.21.43" />
@@ -565,7 +565,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="3840" height="2160" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/slice scale test 2025-02-12 at 14.21.43.png" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/slice scale test 2025-02-12 at 14.21.43.jpg" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">
@@ -864,7 +864,7 @@
 		</Clip>
 		<Clip name="Clip" uniqueId="1742049200280" layerIndex="1" columnIndex="2">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Downloads/SOULKITCHEN/Soul Pict/fashion-chinese-ying-yang-with-fish/38169.jpg" />
+				<VideoFile value="/Users/tijn/Downloads/SOULKITCHEN/Soul Pict/fashion-chinese-ying-yang-with-fish/38169.png" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="38169" value="38169" />
@@ -928,7 +928,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="9380" height="9380" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Downloads/SOULKITCHEN/Soul Pict/fashion-chinese-ying-yang-with-fish/38169.jpg" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Downloads/SOULKITCHEN/Soul Pict/fashion-chinese-ying-yang-with-fish/38169.png" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">
@@ -1158,7 +1158,7 @@
 		<Clip name="Clip" uniqueId="1742049200288" layerIndex="2" columnIndex="3" />
 		<Clip name="Clip" uniqueId="1742049200273" layerIndex="0" columnIndex="4">
 			<PreloadData>
-				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
+				<VideoFile value="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.dxv" />
 			</PreloadData>
 			<Params name="Params">
 				<Param name="Name" T="STRING" default="hyperspace-jump-through-the-stars-to-a-distant-space" value="hyperspace-jump-through-the-stars-to-a-distant-space" />
@@ -1215,7 +1215,7 @@
 				</ChoosableMixer>
 				<PrimarySource>
 					<VideoSource name="VideoSource" width="3840" height="2160" type="VideoFormatReaderSource">
-						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.mp4" />
+						<VideoFormatReaderSource fileName="/Users/tijn/Documents/Resolume Arena/Recorded/MP4 HD/hyperspace-jump-through-the-stars-to-a-distant-space.dxv" />
 					</VideoSource>
 				</PrimarySource>
 				<ChoosableMixer name="Blend">
