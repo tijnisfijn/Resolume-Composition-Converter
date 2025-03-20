@@ -3,20 +3,49 @@
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Interface Overview](#interface-overview)
-3. [File Organization](#file-organization)
-4. [Converting a Composition](#converting-a-composition)
-5. [Supported Clip Types](#supported-clip-types)
-6. [Transform Effects](#transform-effects)
-7. [Understanding File Paths](#understanding-file-paths)
-8. [Best Practices](#best-practices)
-9. [Troubleshooting](#troubleshooting)
+2. [Why Use This Tool?](#why-use-this-tool)
+3. [Interface Overview](#interface-overview)
+4. [File Organization](#file-organization)
+5. [Common Use Cases](#common-use-cases)
+6. [Converting a Composition](#converting-a-composition)
+7. [Supported Clip Types](#supported-clip-types)
+8. [Transform Effects](#transform-effects)
+9. [Understanding File Paths](#understanding-file-paths)
+10. [Best Practices](#best-practices)
+11. [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
 Resolume Composition Converter is a specialized tool designed to help VJs and visual artists convert their Resolume Arena compositions from one resolution and frame rate to another. This is particularly useful when upgrading from HD (1080p) to 4K, or from 25/30fps to 60fps.
 
-The application modifies the XML structure of your .avc files to adjust all relevant parameters, ensuring your composition looks and behaves correctly at the new resolution and frame rate.
+The application modifies the XML structure of your .avc files to adjust all relevant parameters, ensuring your composition looks and behaves correctly at the new resolution and frame rate. It also allows you to replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.
+
+## Why Use This Tool?
+
+### The Challenge of Changing Resolutions and Formats
+
+Visual artists, VJs, and AV professionals who use Resolume Arena often face a common challenge: adapting their carefully crafted compositions to different technical requirements. Whether it's upgrading to higher resolutions, changing frame rates, or switching media formats, these changes traditionally require painstaking manual work to rebuild compositions from scratch.
+
+When you manually recreate a composition at a new resolution or with different media files, you lose hours of work:
+- Recreating all clip placements and layer arrangements
+- Rebuilding complex effect chains and parameter settings
+- Reconstructing precise timing and transitions
+- Reestablishing dashboard controls and MIDI mappings
+- Redoing all transformations, masks, and blend modes
+
+### How the Resolume Composition Converter Helps
+
+The Resolume Composition Converter eliminates this tedious process by automatically adapting your compositions to new technical specifications while preserving all your creative decisions. Here's why this tool is invaluable:
+
+1. **Saves Countless Hours of Work**: What would take hours or even days to recreate manually can be done in minutes.
+
+2. **Maintains Creative Integrity**: All your carefully crafted transformations, effects, timing, and layer arrangements remain intact.
+
+3. **Enables Technical Flexibility**: As technology evolves and venue requirements change, you can easily adapt your compositions without starting over.
+
+4. **Preserves Investment in Content Creation**: The time invested in creating complex compositions is valuable and protected.
+
+5. **Facilitates Workflow Optimization**: With the file extension matching feature, you can easily switch between different media formats while maintaining the same composition structure.
 
 ## Interface Overview
 
@@ -82,6 +111,83 @@ With the "Ignore file extensions" option enabled, you can replace media files wi
 ```
 
 This is particularly useful when upgrading from standard video formats (MP4) to optimized formats like MOV that are better suited for Resolume performance.
+
+## Common Use Cases
+
+Here are some common scenarios where the Resolume Composition Converter proves invaluable:
+
+### Use Case 1: Upgrading from Delivery Formats to Optimized Playback Formats
+**Scenario:** A VJ receives content from a client in standard MP4 format but needs to use DXV codec for optimal Resolume performance.
+**Process:**
+1. Convert all MP4 files to DXV format using Resolume Alley
+2. Place DXV files in a new folder
+3. Launch the Resolume Composition Converter
+4. Select the original composition file (.avc)
+5. Set the input resolution to match the original (e.g., 1920x1080)
+6. Set the output resolution to the same value (1920x1080) to maintain dimensions
+7. Set both input and output frame rates to match the original (e.g., 30 fps)
+8. Specify the old media folder containing MP4 files
+9. Specify the new media folder containing DXV files
+10. Check the "Ignore file extensions" option
+11. Click "Convert Composition"
+12. The composition now references the DXV files instead of MP4 files, maintaining all timing and effects
+
+### Use Case 2: Transitioning Between Different Compression Methods While Upgrading Resolution
+**Scenario:** An artist wants to switch from HAP codec files to DXV while also upgrading from HD to 4K.
+**Process:**
+1. Convert all .HAP.MOV files to 4K .DXV files
+2. Launch the Resolume Composition Converter
+3. Select the original composition file (.avc)
+4. Set the input resolution to the original HD size (1920x1080)
+5. Set the output resolution to 4K (3840x2160)
+6. Keep the frame rate the same for both input and output (e.g., 60 fps)
+7. Specify the old media folder with HAP files
+8. Specify the new media folder with 4K DXV files
+9. Check the "Ignore file extensions" option
+10. Click "Convert Composition"
+11. All clips maintain their positions, effects, and timing while using the new codec and higher resolution
+
+### Use Case 3: Upgrading to 4K Without Replacing Media Files
+**Scenario:** A VJ has upgraded their system to support 4K output and wants to convert their HD composition to 4K without replacing any media files.
+**Process:**
+1. Launch the Resolume Composition Converter
+2. Select the original HD composition file (.avc)
+3. Set the input resolution to 1920x1080
+4. Set the output resolution to 3840x2160
+5. Keep the frame rates the same (e.g., 30 fps)
+6. Leave the media folder fields empty (no media replacement)
+7. Click "Convert Composition"
+8. The composition is now 4K with all transformations, effects, and timing preserved
+9. Original media files will be automatically scaled up to fit the new resolution
+
+### Use Case 4: Upgrading to 4K with Selective Media Replacement
+**Scenario:** A VJ is upgrading to 4K and has created 4K versions of only their most important clips, but wants to keep using the HD versions of other clips.
+**Process:**
+1. Place the new 4K media files in a separate folder
+2. Launch the Resolume Composition Converter
+3. Select the original HD composition file (.avc)
+4. Set the input resolution to 1920x1080
+5. Set the output resolution to 3840x2160
+6. Keep the frame rates the same
+7. Specify the old media folder containing all HD files
+8. Specify the new media folder containing only the 4K versions
+9. Click "Convert Composition"
+10. The converter will replace references to files that exist in the new folder and scale up the remaining HD files
+11. All transformations, effects, and timing are preserved
+
+### Use Case 5: Upgrading to 4K with Higher Frame Rate
+**Scenario:** A performer has upgraded their hardware and wants to convert their HD 30fps composition to 4K 60fps for smoother playback.
+**Process:**
+1. Launch the Resolume Composition Converter
+2. Select the original composition file (.avc)
+3. Set the input resolution to 1920x1080
+4. Set the output resolution to 3840x2160
+5. Set the input frame rate to 30 fps
+6. Set the output frame rate to 60 fps
+7. Leave the media folder fields empty (or specify new media folders if available)
+8. Click "Convert Composition"
+9. The composition is now 4K 60fps with all transformations and effects preserved
+10. Timing is adjusted to maintain the same playback duration despite the frame rate change
 
 ## Converting a Composition
 
