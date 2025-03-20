@@ -25,6 +25,19 @@ This is an open-source project created by a single developer. Contributions, imp
 - Preserve aspect ratio for different image formats (.jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp)
 - Simple and intuitive user interface with drag-and-drop support
 
+## Why Use This Tool?
+
+Visual artists, VJs, and AV professionals who use Resolume Arena often face a common challenge: adapting their carefully crafted compositions to different technical requirements. Whether it's upgrading to higher resolutions, changing frame rates, or switching media formats, these changes traditionally require painstaking manual work to rebuild compositions from scratch.
+
+When you manually recreate a composition at a new resolution or with different media files, you lose hours of work:
+- Recreating all clip placements and layer arrangements
+- Rebuilding complex effect chains and parameter settings
+- Reconstructing precise timing and transitions
+- Reestablishing dashboard controls and MIDI mappings
+- Redoing all transformations, masks, and blend modes
+
+The Resolume Composition Converter eliminates this tedious process by automatically adapting your compositions to new technical specifications while preserving all your creative decisions. For detailed use cases, check out the [Use Cases](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Use-Cases) page in the wiki.
+
 ## Repository Structure
 
 - `/` - Core application files
@@ -61,7 +74,7 @@ Windows users need to build the application from source:
 6. Check "Ignore file extensions" if you want to replace media files with different formats (e.g., .MP4 with .MOV)
 7. Click "Convert Composition"
 
-For more detailed instructions, please refer to the [User Manual](MANUAL.md).
+For more detailed instructions, please refer to the [User Manual](MANUAL.md). For practical examples of how to use this tool in various scenarios, check out the [Use Cases](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Use-Cases) page in the wiki.
 
 ## Building from Source
 
