@@ -1,45 +1,28 @@
-# Resolume Composition Converter 1.1
+# Resolume Composition Converter v1.1.1
 
-## What's New in Version 1.1
+## What's New
+- **Automatic Update Checking**: The application now checks for updates on startup
+- **Manual Update Checking**: Added "Check for Updates" option in the Help menu
+- **User-Friendly Notifications**: Improved update notification dialogs
+- **Browser Integration**: Easy access to download page for updates
 
-### New Feature: Media Format Conversion
-- **File Extension Matching**: You can now replace media files with different formats (e.g., .MP4 with .MOV) while keeping the same base filename
-- **Checkbox Option**: Simply check "Ignore file extensions" in the UI to enable this feature
-- **Format Flexibility**: Great for upgrading from delivery formats to playback-optimized formats
+## Improvements
+- Implemented centralized version management system
+- Enhanced error handling for network issues
+- Improved application startup sequence
+- Enhanced menu organization
 
-### UI Improvements
-- Enhanced tooltip display
-- Fixed styling issues in dark mode
-- Improved hover states for better usability
-
-### Documentation Updates
-- More detailed examples using .MOV format
-- Comprehensive build instructions for Windows users
-- Enhanced user manual with new feature documentation
-
-### macOS Enhancements
-- Added helper scripts for easier application launching
-- Improved debugging support
-- Better integration with macOS
-
-## Downloads
-
-### macOS
-- [Resolume Composition Converter Mac.zip](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases/download/v1.1/Resolume.Composition.Converter.Mac.zip) - Ready-to-use macOS application
-
-### Windows (Build from Source)
-- [Resolume-Composition-Converter-Source.zip](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases/download/v1.1/Resolume-Composition-Converter-Source.zip) - Source package for Windows users
+## Technical Details
+- Added requests library for API communication
+- Updated version information in About dialog
 
 ## Installation
+- **macOS**: Download and extract the ZIP file, then drag the app to your Applications folder
+- **Windows**: Download the source package and follow the build instructions
 
-### macOS
-1. Download the Mac.zip file
-2. Extract the ZIP file
-3. Drag the `Resolume Composition Converter.app` to your Applications folder
+## Known Issues
+- None reported for this release
 
-### Windows
-1. Download the Source.zip file
-2. Follow the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md` to build the application
+---
 
-## Full Changelog
-See the [CHANGELOG.md](https://github.com/tijnisfijn/Resolume-Composition-Converter/blob/main/CHANGELOG.md) file for a complete list of changes.
+Thank you for using Resolume Composition Converter!

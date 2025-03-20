@@ -2,6 +2,18 @@
 
 All notable changes to the Resolume Composition Converter will be documented in this file.
 
+## [1.1.1] - 2025-03-21
+
+### Added
+- Automatic update checker functionality
+- "Check for Updates" option in the Help menu
+- Silent update checking on application startup
+- User-friendly update notification dialogs
+
+### Changed
+- Updated version management system
+- Improved error handling for network issues
+
 ## [1.1] - 2025-03-20
 
 ### Added
