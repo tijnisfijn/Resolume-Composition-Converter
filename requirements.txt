@@ -1,6 +1,5 @@
 pyinstaller>=6.0.0
-markdown>=3.0.0
 pyinstaller-hooks-contrib==2025.1
+markdown>=3.0.0
 pyinstaller==6.12.0
 Markdown==3.7
-requests>=2.25.0
