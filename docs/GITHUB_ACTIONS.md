@@ -67,13 +67,12 @@ jobs:
 8. **List Build Output**: Lists the files in the build output directory
 9. **Create ZIP Archive**: Creates a ZIP archive of the build output for release
 10. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
-11. **Upload as Workflow Artifact** (for non-tagged commits): Attempts to upload the build as a workflow artifact
-12. **Build Completion Message**: Displays a message indicating the build completed successfully
+11. **Build Completion Message**: Displays a message indicating the build completed successfully
 ## Downloading the Built Application
 
-The workflow makes the built application available for download in two ways:
+The workflow makes the built application available for download through GitHub Releases:
 
-### 1. GitHub Releases (Recommended)
+### GitHub Releases
 
 When you create and push a tag, the workflow will automatically create a GitHub Release with the built application:
 
@@ -93,15 +92,14 @@ After pushing a tag, the workflow will:
 
 You can then download the built application from the Releases page on GitHub.
 
-### 2. Workflow Artifacts (Fallback)
+### For Non-Tagged Commits
 
-For regular commits that don't have tags, the workflow will attempt to upload the build as a workflow artifact. However, this method may not work reliably due to compatibility issues with the upload-artifact action.
+For regular commits that don't have tags, the build will run but no downloadable artifact will be created due to compatibility issues with GitHub's artifact system.
 
-If it works, you can access the artifact by:
-1. Going to the Actions tab in your repository
-2. Clicking on the workflow run
-3. Scrolling down to the Artifacts section
-4. Downloading the "windows-build" artifact
+To get a downloadable build for any commit:
+1. Check out that specific commit
+2. Create and push a tag for it
+3. The workflow will automatically create a release with the built application
 5. Extract the ZIP file to access the application
 
 ## Customizing the Workflow
