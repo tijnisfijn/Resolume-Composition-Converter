@@ -65,17 +65,26 @@ jobs:
 7. **Test File Conversion**: Tests the file conversion functionality (if test files exist)
    - Attempts to convert a sample file using command-line parameters
    - This test is non-blocking (workflow continues even if it fails)
-8. **Create ZIP Archive**: Creates a ZIP archive of the build output
-9. **Upload Artifacts**: Uploads the ZIP archive as an artifact
+8. **List Build Output**: Lists the files in the build output directory
+9. **Build Completion Message**: Displays a message indicating the build completed successfully
+## Build Output
 
-## Accessing Build Artifacts
+Currently, the workflow does not upload artifacts due to compatibility issues with GitHub Actions. Instead, it focuses on ensuring the build process works correctly.
 
-After the workflow completes successfully, you can access the build artifacts:
+The build output is available in the `dist/windows` directory on the GitHub Actions runner, but it is not accessible after the workflow completes. To access the build output, you would need to:
 
-1. Go to the [Actions tab](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml)
-2. Click on the most recent successful workflow run
-3. Scroll down to the "Artifacts" section
-4. Download the "windows-build" artifact, which contains a ZIP file with the built application
+1. Clone the repository locally
+2. Run the build process on your local machine using the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
+
+We are working on resolving the artifact upload issues and will update the workflow once a solution is found.
+
+### Future Plans for Artifact Access
+
+In the future, we plan to implement one of the following solutions:
+
+1. Fix the compatibility issues with the upload-artifact action
+2. Use GitHub Releases API to create releases with the build artifacts
+3. Use a third-party storage service to host the build artifacts
 5. Extract the ZIP file to access the application
 
 ## Customizing the Workflow
@@ -100,9 +109,8 @@ The workflow uses specific versions of GitHub Actions:
 
 - `actions/checkout@v3` - For checking out the repository
 - `actions/setup-python@v4` - For setting up Python
-- `actions/upload-artifact@v1` - For uploading build artifacts
 
-If you encounter compatibility issues, you may need to adjust these versions. We specifically use v1 of the upload-artifact action for better compatibility.
+Note: We previously attempted to use `actions/upload-artifact` (v1, v2, and v3) but encountered compatibility issues. The artifact upload functionality has been temporarily disabled.
 
 ### Adding Additional Dependencies
 
