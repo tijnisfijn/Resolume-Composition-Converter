@@ -11,16 +11,16 @@ import shutil
 def ensure_resources_dir():
     """Ensure the Resources directory exists"""
     os.makedirs('dist/Resolume Composition Converter.app/Contents/Resources', exist_ok=True)
-
 def copy_markdown_to_resources():
     """Copy the MANUAL.md file to the Resources directory"""
     print("Copying MANUAL.md to Resources directory...")
     try:
-        shutil.copy('MANUAL.md', 'dist/Resolume Composition Converter.app/Contents/Resources/MANUAL.md')
+        shutil.copy('docs/MANUAL.md', 'dist/Resolume Composition Converter.app/Contents/Resources/MANUAL.md')
         print("MANUAL.md copied successfully")
         return True
     except Exception as e:
         print(f"Error copying MANUAL.md: {e}")
+        return False
         return False
 
 def copy_screenshot():
@@ -62,7 +62,7 @@ def create_html_version():
         has_markdown = False
     
     try:
-        with open('MANUAL.md', 'r') as f:
+        with open('docs/MANUAL.md', 'r') as f:
             md_content = f.read()
         
         # Create a documentation directory

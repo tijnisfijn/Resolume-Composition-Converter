@@ -34,11 +34,11 @@ def main():
     
     # Create HTML documentation
     print("\nCreating HTML documentation...")
-    subprocess.run([sys.executable, "convert_manual_simple.py"], check=True)
+    subprocess.run([sys.executable, "src/convert_manual_simple.py"], check=True)
     
     # Create distribution package
     print("\nCreating distribution package...")
-    subprocess.run([sys.executable, "create_distribution.py"], check=True)
+    subprocess.run([sys.executable, "scripts/create_distribution.py"], check=True)
     
     # Move the built application to the dist/mac directory
     if os.path.exists("dist/Resolume Composition Converter"):
