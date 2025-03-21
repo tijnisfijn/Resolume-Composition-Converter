@@ -1,8 +1,6 @@
 # Resolume Composition Converter
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS|Windows-lightgrey.svg)](https://www.apple.com/macos)
-[![Build Windows](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml/badge.svg)](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml)
 
 A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names. Now with media format conversion: replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.
 
@@ -38,30 +36,6 @@ When you manually recreate a composition at a new resolution or with different m
 - Redoing all transformations, masks, and blend modes
 
 The Resolume Composition Converter eliminates this tedious process by automatically adapting your compositions to new technical specifications while preserving all your creative decisions. For detailed use cases, check out the [Use Cases](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Use-Cases) page in the wiki.
-## Automated Builds with GitHub Actions
-
-This project uses GitHub Actions to automate the Windows build process. The workflow automatically builds the application whenever changes are pushed to the main branch or when a pull request is created.
-
-### Workflow Details
-
-- **Trigger**: Runs on push to main branch, pull requests to main branch, or manual trigger
-- **Environment**: Windows latest
-- **Process**:
-  1. Sets up Python environment
-  2. Installs dependencies
-  3. Runs the Windows build script
-  4. Uploads the built application as artifacts
-
-### Accessing Build Artifacts
-
-1. Go to the [Actions tab](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml)
-2. Click on the most recent successful workflow run
-3. Scroll down to the "Artifacts" section
-4. Download the desired artifact:
-   - "Resolume-Composition-Converter-Windows" - Full build output
-   - "Resolume-Composition-Converter-Windows-ZIP" - Packaged ZIP file
-
-For more detailed information about the GitHub Actions workflow, see [GITHUB_ACTIONS.md](docs/GITHUB_ACTIONS.md).
 
 ## Repository Structure
 
@@ -73,8 +47,6 @@ For more detailed information about the GitHub Actions workflow, see [GITHUB_ACT
 - `/screenshots/` - Application screenshots
 - `/icons/` - Application icons
 - `/documentation/` - Generated documentation
-- `/.github/workflows/` - GitHub Actions workflow files
-- `/documentation/` - Generated documentation
 
 ## Installation
 
@@ -85,20 +57,9 @@ For more detailed information about the GitHub Actions workflow, see [GITHUB_ACT
 3. Drag the `Resolume Composition Converter.app` to your Applications folder
 ### Windows
 
-You have two options for installing on Windows:
-
-#### Option 1: Download from GitHub Actions (Recommended)
-
-1. Go to the [Actions tab](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml) in the GitHub repository
-2. Click on the most recent successful workflow run
-3. Scroll down to the "Artifacts" section
-4. Download the "Resolume-Composition-Converter-Windows-ZIP" artifact
-5. Extract the ZIP file to your desired location
-
-#### Option 2: Build from source
+Windows users need to build the application from source:
 
 1. Download the source code from the [Releases page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
-2. Follow the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
 2. Follow the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
 
 ## Usage
