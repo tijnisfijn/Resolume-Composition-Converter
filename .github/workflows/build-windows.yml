@@ -86,15 +86,17 @@ jobs:
         )
       continue-on-error: true
       
-    - name: Upload executable artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: Resolume-Composition-Converter-Windows
-        path: dist/windows/
+    # Create a ZIP file of the build output instead of using upload-artifact
+    - name: Create ZIP archive of build output
+      run: |
+        echo "Creating ZIP archive of build output..."
+        cd dist
+        powershell Compress-Archive -Path windows -DestinationPath windows-build.zip -Force
+        dir
         
-    - name: Upload ZIP artifact
-      uses: actions/upload-artifact@v2
+    # Use a simpler approach to upload artifacts
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v1
       with:
-        name: Resolume-Composition-Converter-Windows-ZIP
-        path: dist/windows/Resolume Composition Converter.zip
-        if-no-files-found: warn
+        name: windows-build
+        path: dist/windows-build.zip

@@ -65,7 +65,8 @@ jobs:
 7. **Test File Conversion**: Tests the file conversion functionality (if test files exist)
    - Attempts to convert a sample file using command-line parameters
    - This test is non-blocking (workflow continues even if it fails)
-8. **Upload Artifacts**: Uploads the built application and ZIP file as artifacts
+8. **Create ZIP Archive**: Creates a ZIP archive of the build output
+9. **Upload Artifacts**: Uploads the ZIP archive as an artifact
 
 ## Accessing Build Artifacts
 
@@ -74,9 +75,8 @@ After the workflow completes successfully, you can access the build artifacts:
 1. Go to the [Actions tab](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml)
 2. Click on the most recent successful workflow run
 3. Scroll down to the "Artifacts" section
-4. Download the desired artifact:
-   - "Resolume-Composition-Converter-Windows" - Full build output
-   - "Resolume-Composition-Converter-Windows-ZIP" - Packaged ZIP file
+4. Download the "windows-build" artifact, which contains a ZIP file with the built application
+5. Extract the ZIP file to access the application
 
 ## Customizing the Workflow
 
@@ -100,9 +100,9 @@ The workflow uses specific versions of GitHub Actions:
 
 - `actions/checkout@v3` - For checking out the repository
 - `actions/setup-python@v4` - For setting up Python
-- `actions/upload-artifact@v2` - For uploading build artifacts
+- `actions/upload-artifact@v1` - For uploading build artifacts
 
-If you encounter compatibility issues, you may need to adjust these versions.
+If you encounter compatibility issues, you may need to adjust these versions. We specifically use v1 of the upload-artifact action for better compatibility.
 
 ### Adding Additional Dependencies
 
