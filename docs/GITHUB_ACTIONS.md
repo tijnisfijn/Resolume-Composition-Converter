@@ -46,12 +46,13 @@ jobs:
 
 1. **Checkout Repository**: Fetches the latest code from the repository, including submodules
 2. **Set up Python**: Installs Python 3.10 and configures pip
-3. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
-4. **Run Windows Build Script**: Executes the build_windows.py script
-5. **List Build Output**: Lists the files in the build output directory
-6. **Create ZIP Archive**: Creates a ZIP archive of the build output
-7. **Upload Artifact**: Uploads the ZIP archive as a workflow artifact
-8. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
+3. **Enable Debug Logging**: Enables detailed debug logging for troubleshooting
+4. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
+5. **Run Windows Build Script**: Executes the build_windows.py script
+6. **List Build Output**: Lists the files in the build output directory
+7. **Create ZIP Archive**: Creates a ZIP archive of the build output
+8. **Upload Artifact**: Uploads the ZIP archive as a workflow artifact (using v3 of the action)
+9. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
 
 ## Downloading the Built Application
 
@@ -86,6 +87,15 @@ For all commits (including those without tags), the workflow will upload the bui
 3. Scroll down to the Artifacts section
 4. Download the "Resolume-Composition-Converter-Windows" artifact
 
+## Action Versions
+
+The workflow uses specific versions of GitHub Actions:
+
+- `actions/checkout@v2` - For checking out the repository
+- `actions/setup-python@v2` - For setting up Python
+- `actions/upload-artifact@v3` - For uploading build artifacts
+- `softprops/action-gh-release@v1` - For creating GitHub Releases
+
 ## Troubleshooting
 
 If the workflow fails, check the following:
@@ -95,6 +105,7 @@ If the workflow fails, check the following:
 3. **Build Script**: Verify that build/windows/build_windows.py works correctly locally
 4. **File Paths**: Check that all file paths in the workflow and build script are correct
 5. **Python Version**: Make sure the application is compatible with the Python version used in the workflow
+6. **Debug Logs**: Check the debug logs for detailed information about the workflow execution
 
 ## Future Improvements
 
