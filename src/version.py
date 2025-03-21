@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # version.py - Centralized version management for Resolume Composition Converter
 
-VERSION = "1.1.1"  # Current application version
+VERSION = "1.1.2"  # Current application version
 
 def get_version():
     """Return the current application version"""

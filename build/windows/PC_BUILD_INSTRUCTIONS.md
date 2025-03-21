@@ -23,7 +23,7 @@ The source package has the following structure:
    ```
    cd "Resolume-Composition-Converter-Source"
    ```
-   - Verify that you can see the main files like `resolume_gui.py` in this directory.
+   - Verify that you can see the `src` directory containing `resolume_gui.py`.
    - If you see another folder named "Resolume-Composition-Converter-Source" inside, navigate into that folder.
 
 4. **Create and activate** a virtual environment:
@@ -49,9 +49,9 @@ The source package has the following structure:
 
 1. **"script 'path\to\resolume_gui.py' not found" error**:
    - This usually happens when the source package is extracted to a nested directory
-   - Make sure you're in the correct directory where `resolume_gui.py` is located
-   - Run `dir` to verify that `resolume_gui.py` is in your current directory
-   - If you don't see `resolume_gui.py`, navigate to the correct directory
+   - Make sure you're in the correct directory where the `src` folder is located
+   - Run `dir src` to verify that `resolume_gui.py` is in the src directory
+   - If you don't see `resolume_gui.py` in the src directory, navigate to the correct directory
 
 2. **"Spec file not found" error**:
    - Make sure you're in the root directory of the extracted source package
@@ -93,10 +93,14 @@ Resolume-Composition-Converter-Source/
 │   ├── mac/
 │   └── windows/
 ├── screenshots/
-├── resolume_gui.py
-├── runtime_hook.py
-├── convert_manual_simple.py
-├── create_distribution.py
+├── src/
+│   ├── resolume_gui.py
+│   ├── runtime_hook.py
+│   ├── convert_manual_simple.py
+│   ├── update_checker.py
+│   └── version.py
+├── scripts/
+│   └── create_distribution.py
 ├── requirements.txt
 └── other files...
 ```

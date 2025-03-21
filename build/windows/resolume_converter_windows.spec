@@ -81,7 +81,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=os.path.join(repo_root, 'icons/app_icon.ico'),  # Windows icon
+    icon=os.path.join(repo_root, 'icons', 'app_icon.ico'),  # Windows icon
 )
 
 coll = COLLECT(

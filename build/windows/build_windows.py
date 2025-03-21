@@ -20,9 +20,11 @@ def main():
     repo_root = os.path.abspath(os.path.join(script_dir, "../.."))
     print(f"Repository root directory: {repo_root}")
     
-    # Check if resolume_gui.py exists in the repository root directory
-    if not os.path.exists(os.path.join(repo_root, "resolume_gui.py")):
-        print(f"Warning: resolume_gui.py not found in {repo_root}")
+    # Check if resolume_gui.py exists in the src directory
+    if os.path.exists(os.path.join(repo_root, "src", "resolume_gui.py")):
+        print(f"Found resolume_gui.py in src directory")
+    else:
+        print(f"Warning: resolume_gui.py not found in {os.path.join(repo_root, 'src')}")
         
         # Try to find resolume_gui.py in various locations
         possible_locations = [
@@ -31,15 +33,17 @@ def main():
             # Parent directory (for nested extractions)
             os.path.dirname(os.getcwd()),
             # Explicit path based on extraction pattern
-            os.path.dirname(os.path.dirname(os.getcwd()))
+            os.path.dirname(os.path.dirname(os.getcwd())),
+            # src directory
+            os.path.join(repo_root, "src")
         ]
         
         for location in possible_locations:
             test_path = os.path.join(location, "resolume_gui.py")
             print(f"Testing path: {test_path}")
             if os.path.exists(test_path):
-                repo_root = location
-                print(f"Found resolume_gui.py at: {repo_root}")
+                repo_root = os.path.dirname(location) if "src" in location else location
+                print(f"Found resolume_gui.py at: {test_path}")
                 break
     
     # Change to the repository root directory
@@ -50,9 +54,11 @@ def main():
     print(f"Current working directory: {os.getcwd()}")
     print(f"Files in current directory: {os.listdir('.')}")
     
-    # Check if resolume_gui.py exists in the current directory
-    if not os.path.exists("resolume_gui.py"):
-        print("ERROR: resolume_gui.py not found in the current directory.")
+    # Check if resolume_gui.py exists in the src directory
+    if os.path.exists(os.path.join(repo_root, "src", "resolume_gui.py")):
+        print("Found resolume_gui.py in src directory")
+    else:
+        print("ERROR: resolume_gui.py not found in the src directory.")
         print("Please make sure you're in the correct directory and try again.")
         return 1
     
@@ -78,11 +84,11 @@ def main():
     
     # Create HTML documentation
     print("\nCreating HTML documentation...")
-    subprocess.run([sys.executable, "convert_manual_simple.py"], check=True)
+    subprocess.run([sys.executable, os.path.join(repo_root, "src/convert_manual_simple.py")], check=True)
     
     # Create distribution package
     print("\nCreating distribution package...")
-    subprocess.run([sys.executable, "create_distribution.py"], check=True)
+    subprocess.run([sys.executable, os.path.join(repo_root, "scripts/create_distribution.py")], check=True)
     
     # Move the built application to the dist/windows directory
     if os.path.exists("dist/Resolume Composition Converter"):

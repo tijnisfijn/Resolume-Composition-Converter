@@ -20,7 +20,7 @@ def create_windows_icon():
     print(f"Repository root directory: {repo_root}")
     
     # Check if icons/app_icon.png exists in the repository root directory
-    png_path = os.path.join(repo_root, "icons/app_icon.png")
+    png_path = os.path.join(repo_root, "icons", "app_icon.png")
     if not os.path.exists(png_path):
         print(f"Warning: PNG file not found at {png_path}")
         
@@ -36,7 +36,7 @@ def create_windows_icon():
         
         found = False
         for location in possible_locations:
-            test_path = os.path.join(location, "icons/app_icon.png")
+            test_path = os.path.join(location, "icons", "app_icon.png")
             print(f"Testing path: {test_path}")
             if os.path.exists(test_path):
                 repo_root = location
@@ -57,13 +57,13 @@ def create_windows_icon():
     print(f"Current working directory: {os.getcwd()}")
     
     # Check if the PNG file exists in the current directory
-    png_path = "icons/app_icon.png"
+    png_path = os.path.join("icons", "app_icon.png")
     if not os.path.exists(png_path):
         print(f"Error: PNG file not found at {png_path} after changing directory")
         return False
     
     # Create the ICO file
-    ico_path = "icons/app_icon.ico"
+    ico_path = os.path.join("icons", "app_icon.ico")
     try:
         # Open the PNG image
         img = Image.open(png_path)

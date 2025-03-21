@@ -7,13 +7,9 @@ import threading
 from version import get_version
 import update_checker
 
-# Try to import TkinterDnD for drag and drop functionality
-try:
-    from tkinterdnd2 import TkinterDnD, DND_FILES
-    DRAG_DROP_ENABLED = True
-except ImportError:
-    DRAG_DROP_ENABLED = False
-    print("TkinterDnD not available. Drag and drop functionality will be disabled.")
+# Disable drag and drop functionality since tkdnd library can't be loaded
+DRAG_DROP_ENABLED = False
+print("Drag and drop functionality disabled.")
 
 def find_matching_file(old_file_path, new_directory, ignore_extensions=False):
     """
@@ -894,8 +890,7 @@ class ResolumeConverterApp:
             "input_bg": "#333445",
             "text": "#e2e8f0",
             "text_muted": "#9CA3AF",
-            "border": "#3f3f5a",
-            "drop_highlight": "#7E7FFC"  # Slightly lighter than primary for drop highlight
+            "border": "#3f3f5a"
         }
         
         # Configure styles
@@ -941,14 +936,8 @@ class ResolumeConverterApp:
         self.new_height = tk.StringVar(value="2160")
         self.new_fps = tk.StringVar(value="60")
         
-        # Store references to entry widgets for drag and drop
-        self.entry_widgets = {}
-        
         # Create app layout
         self.create_widgets()
-        
-        # Set up drag and drop for the whole window
-        self.setup_drag_and_drop()
         
         # Check for updates on startup (non-blocking, after a delay)
         self.root.after(2000, self.check_for_updates_silently)
@@ -1034,8 +1023,6 @@ class ResolumeConverterApp:
         
         input_entry = ttk.Entry(input_frame, textvariable=self.input_path, style='TEntry')
         input_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        # Store reference for drag and drop
-        self.entry_widgets['input'] = input_entry
         
         browse_input_btn = ttk.Button(input_frame, text="Browse", command=self.browse_input, style='TButton')
         browse_input_btn.pack(side=tk.RIGHT)
@@ -1062,8 +1049,6 @@ class ResolumeConverterApp:
         
         old_path_entry = ttk.Entry(old_path_frame, textvariable=self.old_path, style='TEntry')
         old_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        # Store reference for drag and drop
-        self.entry_widgets['old_path'] = old_path_entry
         
         browse_old_path_btn = ttk.Button(old_path_frame, text="Browse", command=self.browse_old_path, style='TButton')
         browse_old_path_btn.pack(side=tk.RIGHT)
@@ -1077,8 +1062,6 @@ class ResolumeConverterApp:
         
         new_path_entry = ttk.Entry(new_path_frame, textvariable=self.new_path, style='TEntry')
         new_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        # Store reference for drag and drop
-        self.entry_widgets['new_path'] = new_path_entry
         
         browse_new_path_btn = ttk.Button(new_path_frame, text="Browse", command=self.browse_new_path, style='TButton')
         browse_new_path_btn.pack(side=tk.RIGHT)
@@ -1297,67 +1280,6 @@ class ResolumeConverterApp:
         if folder:
             self.new_path.set(folder)
     
-    def setup_drag_and_drop(self):
-        """Set up drag and drop functionality for the entry widgets"""
-        # Skip if drag and drop is not available
-        if not DRAG_DROP_ENABLED:
-            return
-            
-        # Create a highlight style for drag and drop
-        self.style.configure('Highlight.TEntry',
-                            fieldbackground=self.colors["drop_highlight"],
-                            foreground=self.colors["text"],
-                            borderwidth=0,
-                            padding=8)
-        
-        # Define the drag and drop functions
-        def drop(event, target_widget_key):
-            # Get the dropped data
-            data = event.data
-            
-            # Check if it's a file or folder path (remove curly braces if present)
-            if data.startswith('{') and data.endswith('}'):
-                data = data[1:-1]
-            
-            # Handle multiple files (space-separated)
-            paths = data.split(' ')
-            if not paths:
-                return
-            
-            # Get the first path
-            path = paths[0]
-            
-            # Handle different target widgets
-            if target_widget_key == 'input':
-                # Only accept .avc or .xml files for input
-                if path.lower().endswith(('.avc', '.xml')):
-                    self.input_path.set(path)
-            elif target_widget_key == 'old_path' or target_widget_key == 'new_path':
-                # For path fields, check if it's a directory
-                if os.path.isdir(path):
-                    if target_widget_key == 'old_path':
-                        self.old_path.set(path)
-                    else:
-                        self.new_path.set(path)
-            
-            # Reset the highlight
-            self.entry_widgets[target_widget_key].config(style='TEntry')
-        
-        def drag_enter(event, target_widget_key):
-            # Highlight the entry widget when dragging over it
-            self.entry_widgets[target_widget_key].config(style='Highlight.TEntry')
-        
-        def drag_leave(event, target_widget_key):
-            # Reset the highlight when dragging leaves
-            self.entry_widgets[target_widget_key].config(style='TEntry')
-        
-        # Set up drag and drop for each entry widget
-        for key, widget in self.entry_widgets.items():
-            widget.drop_target_register(DND_FILES)
-            widget.dnd_bind('<<Drop>>', lambda e, k=key: drop(e, k))
-            widget.dnd_bind('<<DropEnter>>', lambda e, k=key: drag_enter(e, k))
-            widget.dnd_bind('<<DropLeave>>', lambda e, k=key: drag_leave(e, k))
-    
     def convert_composition(self):
         """Handle composition conversion using the original adjust_composition function"""
         input_file = self.input_path.get()
@@ -1392,7 +1314,6 @@ class ResolumeConverterApp:
         # Calculate scaling factors
         resolution_factor = new_width / orig_width
         framerate_factor = new_framerate / orig_framerate
-        
         if not input_file or not output_file:
             messagebox.showerror("Error", "Please select both an input and an output file.")
             return
@@ -1403,6 +1324,7 @@ class ResolumeConverterApp:
             return
         elif (old_path and not new_path) or (new_path and not old_path):
             messagebox.showerror("Error", "Both old path and new path must be provided together.")
+            return
             return
         
         try:
@@ -1648,11 +1570,8 @@ class ResolumeConverterApp:
 #       MAIN APP
 # ----------------------
 if __name__ == "__main__":
-    # Initialize TkinterDnD if available
-    if DRAG_DROP_ENABLED:
-        root = TkinterDnD.Tk()
-    else:
-        root = tk.Tk()
+    # Initialize Tk
+    root = tk.Tk()
     
     app = ResolumeConverterApp(root)
     

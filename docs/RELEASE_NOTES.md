@@ -1,3 +1,22 @@
+ We got Proper a background check got a big problem with way more expenses than revenue deficit the highest GDP in decades the propos# Release Notes - Version 1.1.2
+
+## Improvements
+- Removed drag and drop functionality to improve stability
+- Fixed issue with file conversion not working properly
+- Improved file overwrite warning behavior to avoid duplicate warnings
+- Streamlined the user interface for better usability
+
+## Bug Fixes
+- Fixed issue where the application was creating a copy of the original file instead of converting it
+- Fixed redundant warning messages when overwriting existing files
+- Removed leftover drag and drop code that was causing errors
+
+## Technical Updates
+- Reduced code complexity by removing unused features
+- Improved error handling throughout the application
+
+---
+
 # Release Notes - Version 1.1.1
 
 ## New Features
