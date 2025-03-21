@@ -60,31 +60,48 @@ jobs:
 4. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
 5. **Run Windows Build Script**: Executes the build_windows.py script
 6. **Test Application**: Performs basic smoke tests on the built application
-   - Verifies the executable exists
-   - Tests launching the application with the --version parameter
-7. **Test File Conversion**: Tests the file conversion functionality (if test files exist)
-   - Attempts to convert a sample file using command-line parameters
+   - Verifies the executable exists without attempting to run it
+   - Lists directory contents for verification
+7. **Check Test Data Files**: Checks if test data files exist without attempting to run conversion
    - This test is non-blocking (workflow continues even if it fails)
 8. **List Build Output**: Lists the files in the build output directory
-9. **Build Completion Message**: Displays a message indicating the build completed successfully
-## Build Output
+9. **Create ZIP Archive**: Creates a ZIP archive of the build output for release
+10. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
+11. **Upload as Workflow Artifact** (for non-tagged commits): Attempts to upload the build as a workflow artifact
+12. **Build Completion Message**: Displays a message indicating the build completed successfully
+## Downloading the Built Application
 
-Currently, the workflow does not upload artifacts due to compatibility issues with GitHub Actions. Instead, it focuses on ensuring the build process works correctly.
+The workflow makes the built application available for download in two ways:
 
-The build output is available in the `dist/windows` directory on the GitHub Actions runner, but it is not accessible after the workflow completes. To access the build output, you would need to:
+### 1. GitHub Releases (Recommended)
 
-1. Clone the repository locally
-2. Run the build process on your local machine using the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
+When you create and push a tag, the workflow will automatically create a GitHub Release with the built application:
 
-We are working on resolving the artifact upload issues and will update the workflow once a solution is found.
+```bash
+# Create a tag
+git tag v1.1.3
 
-### Future Plans for Artifact Access
+# Push the tag to GitHub
+git push origin v1.1.3
+```
 
-In the future, we plan to implement one of the following solutions:
+After pushing a tag, the workflow will:
+1. Build the application
+2. Create a ZIP archive of the build output
+3. Create a GitHub Release with the tag name
+4. Upload the ZIP archive to the release
 
-1. Fix the compatibility issues with the upload-artifact action
-2. Use GitHub Releases API to create releases with the build artifacts
-3. Use a third-party storage service to host the build artifacts
+You can then download the built application from the Releases page on GitHub.
+
+### 2. Workflow Artifacts (Fallback)
+
+For regular commits that don't have tags, the workflow will attempt to upload the build as a workflow artifact. However, this method may not work reliably due to compatibility issues with the upload-artifact action.
+
+If it works, you can access the artifact by:
+1. Going to the Actions tab in your repository
+2. Clicking on the workflow run
+3. Scrolling down to the Artifacts section
+4. Downloading the "windows-build" artifact
 5. Extract the ZIP file to access the application
 
 ## Customizing the Workflow
