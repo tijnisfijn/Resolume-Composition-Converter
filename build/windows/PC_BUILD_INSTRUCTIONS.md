@@ -1,5 +1,7 @@
 # Windows Build Instructions for Resolume Composition Converter
 
+> **Note:** As an alternative to building manually, you can now download pre-built Windows versions from GitHub Actions. See the [Automated Builds](#automated-builds) section below.
+
 ## Repository Structure
 
 The source package has the following structure:
@@ -9,6 +11,7 @@ The source package has the following structure:
 - `/dist/mac/` - Output directory for Mac builds
 - `/dist/windows/` - Output directory for Windows builds
 - `/screenshots/` - Application screenshots
+- `/.github/workflows/` - GitHub Actions workflow files
 
 ## Step-by-Step Instructions
 
@@ -116,3 +119,23 @@ The build script will:
 6. Create a distribution package
 
 After the build is complete, you'll find the application in the `dist/windows/Resolume Composition Converter` folder.
+
+## Automated Builds
+
+### Using GitHub Actions (Recommended)
+
+Instead of building manually, you can download pre-built Windows versions from GitHub Actions:
+
+1. Go to the [Actions tab](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/build-windows.yml) in the GitHub repository
+2. Click on the most recent successful workflow run
+3. Scroll down to the "Artifacts" section
+4. Download the "Resolume-Composition-Converter-Windows-ZIP" artifact
+5. Extract the ZIP file to your desired location
+
+This method is recommended for most users as it:
+- Eliminates the need to set up a development environment
+- Ensures consistent builds across different systems
+- Saves time and reduces potential build errors
+- Provides access to the latest builds automatically
+
+For more information about the GitHub Actions workflow, see [GITHUB_ACTIONS.md](../../docs/GITHUB_ACTIONS.md).

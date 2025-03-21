@@ -1,4 +1,21 @@
- We got Proper a background check got a big problem with way more expenses than revenue deficit the highest GDP in decades the propos# Release Notes - Version 1.1.2
+# Release Notes - Version 1.1.3 (Upcoming)
+
+## New Features
+- Added GitHub Actions workflow for automated Windows builds
+- Improved Windows build process with CI/CD integration
+
+## Improvements
+- Updated README with Windows build instructions using GitHub Actions
+- Added build status badge to README
+- Enhanced documentation for Windows users
+
+## Technical Updates
+- Implemented automated build and artifact publishing
+- Streamlined Windows installation process
+
+---
+
+# Release Notes - Version 1.1.2
 
 ## Improvements
 - Removed drag and drop functionality to improve stability

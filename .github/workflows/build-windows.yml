@@ -1,0 +1,55 @@
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        .\venv\Scripts\activate
+        python -m pip install --upgrade pip
+      
+    - name: Install dependencies
+      run: |
+        .\venv\Scripts\activate
+        pip install -r requirements.txt
+        pip install Pillow
+      
+    - name: Run Windows build script
+      run: |
+        .\venv\Scripts\activate
+        python build/windows/build_windows.py
+      
+    - name: Upload executable artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Resolume-Composition-Converter-Windows
+        path: dist/windows/
+        
+    - name: Upload ZIP artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Resolume-Composition-Converter-Windows-ZIP
+        path: dist/windows/Resolume Composition Converter.zip
+        if-no-files-found: ignore
