@@ -1,10 +1,10 @@
 # GitHub Actions Workflow for Windows Builds
 
-This document explains how the GitHub Actions workflow is set up to create releases for the Resolume Composition Converter application.
+This document explains how the GitHub Actions workflow is set up to automate the Windows build process for the Resolume Composition Converter application.
 
 ## Overview
 
-Due to compatibility issues with GitHub Actions and the repository structure, we've implemented a simplified workflow that creates placeholder releases instead of attempting to build the application directly on GitHub's infrastructure.
+The GitHub Actions workflow automates the process of building the Windows version of the application. This eliminates the need for Windows users to manually build the application from source, making it easier to distribute and test the application on Windows.
 
 ## Workflow File
 
@@ -13,26 +13,23 @@ The workflow is defined in `.github/workflows/build-windows.yml` and includes th
 ### Triggers
 
 The workflow runs automatically when:
+- Code is pushed to the `main` branch
 - A tag is pushed (e.g., v1.1.2, v1.1.3)
+- A pull request is created targeting the `main` branch
 - Manually triggered using the "Run workflow" button in the GitHub Actions UI
 
 ```yaml
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'  # Run only on tag pushes
+      - 'v*'  # Run on tag pushes too
+  pull_request:
+    branches:
+      - main
   # Allow manual triggering
   workflow_dispatch:
-```
-
-### Permissions
-
-The workflow specifies required permissions:
-
-```yaml
-permissions:
-  contents: write  # Needed for creating releases
-  packages: read
 ```
 
 ### Environment
@@ -47,21 +44,22 @@ jobs:
 
 ### Steps
 
-1. **Create GitHub Release**: Creates a placeholder GitHub Release for the tag
-2. **Build Completion Message**: Displays a message indicating the release was created successfully
+1. **Checkout Repository**: Fetches the latest code from the repository, including submodules
+2. **Set up Python**: Installs Python 3.10 and configures pip
+3. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
+4. **Run Windows Build Script**: Executes the build_windows.py script
+5. **List Build Output**: Lists the files in the build output directory
+6. **Create ZIP Archive**: Creates a ZIP archive of the build output
+7. **Upload Artifact**: Uploads the ZIP archive as a workflow artifact
+8. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
 
-## Downloading the Application
+## Downloading the Built Application
 
-### Building Locally (Recommended)
+The workflow makes the built application available for download in two ways:
 
-The recommended approach is to build the application locally using the instructions in the README and build documentation:
+### 1. GitHub Releases (for tagged commits)
 
-1. Clone the repository
-2. Follow the build instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
-
-### GitHub Releases
-
-When you create and push a tag, the workflow will automatically create a placeholder GitHub Release:
+When you create and push a tag, the workflow will automatically create a GitHub Release with the built application:
 
 ```bash
 # Create a tag
@@ -71,20 +69,39 @@ git tag v1.1.3
 git push origin v1.1.3
 ```
 
-After pushing a tag, the workflow will create a GitHub Release with the tag name, but it will not contain the actual built application due to GitHub Actions limitations.
+After pushing a tag, the workflow will:
+1. Build the application
+2. Create a ZIP archive of the build output
+3. Create a GitHub Release with the tag name
+4. Upload the ZIP archive to the release
+
+You can then download the built application from the Releases page on GitHub.
+
+### 2. Workflow Artifacts (for all commits)
+
+For all commits (including those without tags), the workflow will upload the built application as a workflow artifact:
+
+1. Go to the Actions tab in your repository
+2. Click on the workflow run
+3. Scroll down to the Artifacts section
+4. Download the "Resolume-Composition-Converter-Windows" artifact
 
 ## Troubleshooting
 
 If the workflow fails, check the following:
 
-1. **Git Issues**: The repository contains submodules that can cause issues with GitHub Actions
-2. **Permissions**: Ensure the workflow has the correct permissions to create releases
-3. **Tag Format**: Make sure tags follow the format `v*` (e.g., v1.1.2, v1.1.3)
+1. **Submodule Issues**: Ensure that the submodules are properly configured
+2. **Dependencies**: Ensure all required dependencies are listed in requirements.txt
+3. **Build Script**: Verify that build/windows/build_windows.py works correctly locally
+4. **File Paths**: Check that all file paths in the workflow and build script are correct
+5. **Python Version**: Make sure the application is compatible with the Python version used in the workflow
 
 ## Future Improvements
 
 Potential improvements to the workflow:
 
-1. **Self-Hosted Runner**: Set up a self-hosted runner that can handle the repository structure
-2. **Alternative CI/CD**: Explore alternative CI/CD platforms that might work better with the repository
-3. **Repository Restructuring**: Consider restructuring the repository to be more compatible with GitHub Actions
+1. **Code Signing**: Implement code signing for the Windows executable
+2. **Automated Testing**: Add automated tests to verify the built application works correctly
+3. **Cross-Platform Builds**: Add macOS and Linux build jobs
+4. **Version Tagging**: Automatically update version numbers and create tags
+5. **Release Notes**: Automatically generate release notes from commit messages

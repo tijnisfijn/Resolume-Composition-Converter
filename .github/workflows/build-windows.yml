@@ -1,37 +1,71 @@
-name: Simple Windows Build
+name: Build Windows
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'  # Run only on tag pushes
+      - 'v*'  # Run on tag pushes too
+  pull_request:
+    branches:
+      - main
   # Allow manual triggering
   workflow_dispatch:
-
-permissions:
-  contents: write  # Needed for creating releases
-  packages: read
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - name: Create simple release
-      id: create_release
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: true  # Ensure submodules are checked out
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'  # Match your development environment
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install Pillow  # Required for icon creation
+
+    - name: Run Windows build script
+      run: |
+        python build/windows/build_windows.py
+
+    - name: List build output
+      run: |
+        dir dist\windows
+
+    - name: Create ZIP archive
+      run: |
+        powershell Compress-Archive -Path "dist\windows\Resolume Composition Converter" -DestinationPath "dist\Resolume-Composition-Converter-Windows.zip" -Force
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Resolume-Composition-Converter-Windows
+        path: dist\Resolume-Composition-Converter-Windows.zip
+
+    # Create a GitHub Release when a tag is pushed
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         name: Windows Build ${{ github.ref_name }}
+        files: dist\Resolume-Composition-Converter-Windows.zip
         body: |
-          This is a Windows build of Resolume Composition Converter.
+          Windows build of Resolume Composition Converter version ${{ github.ref_name }}.
           
-          Due to GitHub Actions limitations, we're providing a placeholder release.
-          Please download the application from the project website or build it locally using the instructions in the README.
+          ## Installation
+          1. Download the ZIP file
+          2. Extract to your desired location
+          3. Run "Resolume Composition Converter.exe"
         draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Build completion message
-      run: |
-        echo "Release created successfully!"
-        echo "A placeholder release has been created on the Releases page."
