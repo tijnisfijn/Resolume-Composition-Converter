@@ -20,23 +20,36 @@ The workflow runs automatically when:
 ```yaml
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   # Allow manual triggering
   workflow_dispatch:
 ```
 
+### Permissions
+
+The workflow specifies required permissions:
+
+```yaml
+permissions:
+  contents: read
+  packages: read
+  # Add other permissions as needed
+```
+
 ### Environment
 
-The workflow runs on a Windows environment:
+The workflow runs on a Windows environment with CMD shell:
 
 ```yaml
 jobs:
   build:
     runs-on: windows-latest
+    
+    defaults:
+      run:
+        shell: cmd
 ```
 
 ### Steps
@@ -46,7 +59,13 @@ jobs:
 3. **Create Virtual Environment**: Sets up a Python virtual environment
 4. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
 5. **Run Windows Build Script**: Executes the build_windows.py script
-6. **Upload Artifacts**: Uploads the built application and ZIP file as artifacts
+6. **Test Application**: Performs basic smoke tests on the built application
+   - Verifies the executable exists
+   - Tests launching the application with the --version parameter
+7. **Test File Conversion**: Tests the file conversion functionality (if test files exist)
+   - Attempts to convert a sample file using command-line parameters
+   - This test is non-blocking (workflow continues even if it fails)
+8. **Upload Artifacts**: Uploads the built application and ZIP file as artifacts
 
 ## Accessing Build Artifacts
 
@@ -75,6 +94,16 @@ To use a different Python version, modify the `python-version` parameter:
     cache: 'pip'
 ```
 
+### Action Versions
+
+The workflow uses specific versions of GitHub Actions:
+
+- `actions/checkout@v3` - For checking out the repository
+- `actions/setup-python@v4` - For setting up Python
+- `actions/upload-artifact@v2` - For uploading build artifacts
+
+If you encounter compatibility issues, you may need to adjust these versions.
+
 ### Adding Additional Dependencies
 
 If you need to install additional dependencies, add them to the "Install dependencies" step:
@@ -99,6 +128,60 @@ If you need to pass additional parameters to the build script, modify the "Run W
     python build/windows/build_windows.py --your-parameter value  # Add parameters here
 ```
 
+## Automated Testing
+
+The workflow includes automated testing steps to verify that the built application works correctly:
+
+### Basic Smoke Test
+
+This test verifies that the application executable exists and can be launched:
+
+```yaml
+- name: Test application (Basic smoke test)
+  run: |
+    echo "Running basic smoke test on the built application..."
+    if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
+      echo "Application executable exists. Testing with --version parameter..."
+      dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --version
+      if %ERRORLEVEL% EQU 0 (
+        echo "Application started successfully!"
+      ) else (
+        echo "Application failed to start with error code %ERRORLEVEL%"
+        exit /b 1
+      )
+    ) else (
+      echo "Application executable not found!"
+      exit /b 1
+    )
+```
+
+### File Conversion Test
+
+This test attempts to convert a sample file using command-line parameters:
+
+```yaml
+- name: Test file conversion (if test files exist)
+  run: |
+    echo "Testing file conversion functionality..."
+    if exist "test-data\UpscaleComp.avc" (
+      if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
+        echo "Running conversion test with sample file..."
+        dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --cli --input "test-data\UpscaleComp.avc" --output "test-data\UpscaleComp_test_output.avc" --width 1920 --height 1080
+        if %ERRORLEVEL% EQU 0 (
+          echo "Conversion test passed!"
+        ) else (
+          echo "Conversion test failed with error code %ERRORLEVEL%"
+          echo "This is a non-blocking test, continuing workflow..."
+        )
+      )
+    ) else (
+      echo "Test data file not found, skipping conversion test."
+    )
+  continue-on-error: true
+```
+
+Note: The file conversion test is configured with `continue-on-error: true`, which means the workflow will continue even if this test fails. This is useful for non-critical tests that shouldn't block the build process.
+
 ## Troubleshooting
 
 If the workflow fails, check the following:
@@ -107,6 +190,7 @@ If the workflow fails, check the following:
 2. **Build Script**: Verify that build/windows/build_windows.py works correctly locally
 3. **File Paths**: Check that all file paths in the workflow and build script are correct
 4. **Python Version**: Make sure the application is compatible with the Python version used in the workflow
+5. **Command-Line Arguments**: If the tests are failing, check if the application supports the command-line arguments used in the tests
 
 ## Future Improvements
 
@@ -115,5 +199,12 @@ Potential improvements to the workflow:
 1. **Release Integration**: Automatically create GitHub releases with the built artifacts
 2. **Version Tagging**: Automatically update version numbers and create tags
 3. **Cross-Platform Builds**: Add macOS and Linux build jobs
-4. **Testing**: Add automated testing before building
+4. **Enhanced Testing**:
+   - Add more comprehensive automated tests
+   - Implement UI testing with tools like PyAutoGUI or Selenium
+   - Add unit tests for core functionality
+   - Create a test matrix for different Windows versions
 5. **Code Signing**: Implement code signing for the Windows executable
+6. **Test Reporting**: Generate and publish test reports
+7. **Code Coverage**: Add code coverage reporting for tests
+8. **Performance Testing**: Add performance benchmarks to ensure the application meets performance requirements

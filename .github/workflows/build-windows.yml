@@ -2,21 +2,30 @@ name: Build Windows
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   # Allow manual triggering
   workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+  # Add other permissions as needed
 
 jobs:
   build:
     runs-on: windows-latest
     
+    defaults:
+      run:
+        shell: cmd
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -27,29 +36,65 @@ jobs:
     - name: Create virtual environment
       run: |
         python -m venv venv
-        .\venv\Scripts\activate
+        call venv\Scripts\activate.bat
         python -m pip install --upgrade pip
       
     - name: Install dependencies
       run: |
-        .\venv\Scripts\activate
+        call venv\Scripts\activate.bat
         pip install -r requirements.txt
         pip install Pillow
       
     - name: Run Windows build script
       run: |
-        .\venv\Scripts\activate
+        call venv\Scripts\activate.bat
         python build/windows/build_windows.py
+    
+    - name: Test application (Basic smoke test)
+      run: |
+        echo "Running basic smoke test on the built application..."
+        if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
+          echo "Application executable exists. Testing with --version parameter..."
+          dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --version
+          if %ERRORLEVEL% EQU 0 (
+            echo "Application started successfully!"
+          ) else (
+            echo "Application failed to start with error code %ERRORLEVEL%"
+            exit /b 1
+          )
+        ) else (
+          echo "Application executable not found!"
+          exit /b 1
+        )
+    
+    - name: Test file conversion (if test files exist)
+      run: |
+        echo "Testing file conversion functionality..."
+        if exist "test-data\UpscaleComp.avc" (
+          if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
+            echo "Running conversion test with sample file..."
+            dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --cli --input "test-data\UpscaleComp.avc" --output "test-data\UpscaleComp_test_output.avc" --width 1920 --height 1080
+            if %ERRORLEVEL% EQU 0 (
+              echo "Conversion test passed!"
+            ) else (
+              echo "Conversion test failed with error code %ERRORLEVEL%"
+              echo "This is a non-blocking test, continuing workflow..."
+            )
+          )
+        ) else (
+          echo "Test data file not found, skipping conversion test."
+        )
+      continue-on-error: true
       
     - name: Upload executable artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: Resolume-Composition-Converter-Windows
         path: dist/windows/
         
     - name: Upload ZIP artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: Resolume-Composition-Converter-Windows-ZIP
         path: dist/windows/Resolume Composition Converter.zip
-        if-no-files-found: ignore
+        if-no-files-found: warn
