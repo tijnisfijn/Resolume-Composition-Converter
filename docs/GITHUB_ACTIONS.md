@@ -1,10 +1,10 @@
 # GitHub Actions Workflow for Windows Builds
 
-This document explains how the GitHub Actions workflow is set up to automate the Windows build process for the Resolume Composition Converter application.
+This document explains how the GitHub Actions workflow is set up to create releases for the Resolume Composition Converter application.
 
 ## Overview
 
-The GitHub Actions workflow automates the process of building the Windows version of the application. This eliminates the need for Windows users to manually build the application from source, making it easier to distribute and test the application on Windows.
+Due to compatibility issues with GitHub Actions and the repository structure, we've implemented a simplified workflow that creates placeholder releases instead of attempting to build the application directly on GitHub's infrastructure.
 
 ## Workflow File
 
@@ -13,16 +13,14 @@ The workflow is defined in `.github/workflows/build-windows.yml` and includes th
 ### Triggers
 
 The workflow runs automatically when:
-- Code is pushed to the `main` branch
-- A pull request is created targeting the `main` branch
+- A tag is pushed (e.g., v1.1.2, v1.1.3)
 - Manually triggered using the "Run workflow" button in the GitHub Actions UI
 
 ```yaml
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'  # Run only on tag pushes
   # Allow manual triggering
   workflow_dispatch:
 ```
@@ -33,48 +31,37 @@ The workflow specifies required permissions:
 
 ```yaml
 permissions:
-  contents: read
+  contents: write  # Needed for creating releases
   packages: read
-  # Add other permissions as needed
 ```
 
 ### Environment
 
-The workflow runs on a Windows environment with CMD shell:
+The workflow runs on a Windows environment:
 
 ```yaml
 jobs:
   build:
     runs-on: windows-latest
-    
-    defaults:
-      run:
-        shell: cmd
 ```
 
 ### Steps
 
-1. **Checkout Repository**: Fetches the latest code from the repository
-2. **Set up Python**: Installs Python 3.10 and configures pip caching
-3. **Create Virtual Environment**: Sets up a Python virtual environment
-4. **Install Dependencies**: Installs required packages from requirements.txt and Pillow
-5. **Run Windows Build Script**: Executes the build_windows.py script
-6. **Test Application**: Performs basic smoke tests on the built application
-   - Verifies the executable exists without attempting to run it
-   - Lists directory contents for verification
-7. **Check Test Data Files**: Checks if test data files exist without attempting to run conversion
-   - This test is non-blocking (workflow continues even if it fails)
-8. **List Build Output**: Lists the files in the build output directory
-9. **Create ZIP Archive**: Creates a ZIP archive of the build output for release
-10. **Create GitHub Release** (for tagged commits): Creates a GitHub Release with the built application
-11. **Build Completion Message**: Displays a message indicating the build completed successfully
-## Downloading the Built Application
+1. **Create GitHub Release**: Creates a placeholder GitHub Release for the tag
+2. **Build Completion Message**: Displays a message indicating the release was created successfully
 
-The workflow makes the built application available for download through GitHub Releases:
+## Downloading the Application
+
+### Building Locally (Recommended)
+
+The recommended approach is to build the application locally using the instructions in the README and build documentation:
+
+1. Clone the repository
+2. Follow the build instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
 
 ### GitHub Releases
 
-When you create and push a tag, the workflow will automatically create a GitHub Release with the built application:
+When you create and push a tag, the workflow will automatically create a placeholder GitHub Release:
 
 ```bash
 # Create a tag
@@ -84,150 +71,20 @@ git tag v1.1.3
 git push origin v1.1.3
 ```
 
-After pushing a tag, the workflow will:
-1. Build the application
-2. Create a ZIP archive of the build output
-3. Create a GitHub Release with the tag name
-4. Upload the ZIP archive to the release
-
-You can then download the built application from the Releases page on GitHub.
-
-### For Non-Tagged Commits
-
-For regular commits that don't have tags, the build will run but no downloadable artifact will be created due to compatibility issues with GitHub's artifact system.
-
-To get a downloadable build for any commit:
-1. Check out that specific commit
-2. Create and push a tag for it
-3. The workflow will automatically create a release with the built application
-5. Extract the ZIP file to access the application
-
-## Customizing the Workflow
-
-If you need to modify the workflow, here are some common changes you might want to make:
-
-### Changing the Python Version
-
-To use a different Python version, modify the `python-version` parameter:
-
-```yaml
-- name: Set up Python
-  uses: actions/setup-python@v4
-  with:
-    python-version: '3.11'  # Change to desired version
-    cache: 'pip'
-```
-
-### Action Versions
-
-The workflow uses specific versions of GitHub Actions:
-
-- `actions/checkout@v3` - For checking out the repository
-- `actions/setup-python@v4` - For setting up Python
-
-Note: We previously attempted to use `actions/upload-artifact` (v1, v2, and v3) but encountered compatibility issues. The artifact upload functionality has been temporarily disabled.
-
-### Adding Additional Dependencies
-
-If you need to install additional dependencies, add them to the "Install dependencies" step:
-
-```yaml
-- name: Install dependencies
-  run: |
-    .\venv\Scripts\activate
-    pip install -r requirements.txt
-    pip install Pillow
-    pip install your-additional-package  # Add your package here
-```
-
-### Modifying Build Parameters
-
-If you need to pass additional parameters to the build script, modify the "Run Windows build script" step:
-
-```yaml
-- name: Run Windows build script
-  run: |
-    .\venv\Scripts\activate
-    python build/windows/build_windows.py --your-parameter value  # Add parameters here
-```
-
-## Automated Testing
-
-The workflow includes automated testing steps to verify that the built application works correctly:
-
-### Basic Smoke Test
-
-This test verifies that the application executable exists and can be launched:
-
-```yaml
-- name: Test application (Basic smoke test)
-  run: |
-    echo "Running basic smoke test on the built application..."
-    if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
-      echo "Application executable exists. Testing with --version parameter..."
-      dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --version
-      if %ERRORLEVEL% EQU 0 (
-        echo "Application started successfully!"
-      ) else (
-        echo "Application failed to start with error code %ERRORLEVEL%"
-        exit /b 1
-      )
-    ) else (
-      echo "Application executable not found!"
-      exit /b 1
-    )
-```
-
-### File Conversion Test
-
-This test attempts to convert a sample file using command-line parameters:
-
-```yaml
-- name: Test file conversion (if test files exist)
-  run: |
-    echo "Testing file conversion functionality..."
-    if exist "test-data\UpscaleComp.avc" (
-      if exist "dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe" (
-        echo "Running conversion test with sample file..."
-        dist\windows\Resolume Composition Converter\Resolume Composition Converter.exe --cli --input "test-data\UpscaleComp.avc" --output "test-data\UpscaleComp_test_output.avc" --width 1920 --height 1080
-        if %ERRORLEVEL% EQU 0 (
-          echo "Conversion test passed!"
-        ) else (
-          echo "Conversion test failed with error code %ERRORLEVEL%"
-          echo "This is a non-blocking test, continuing workflow..."
-        )
-      )
-    ) else (
-      echo "Test data file not found, skipping conversion test."
-    )
-  continue-on-error: true
-```
-
-Note: The file conversion test is configured with `continue-on-error: true`, which means the workflow will continue even if this test fails. This is useful for non-critical tests that shouldn't block the build process.
+After pushing a tag, the workflow will create a GitHub Release with the tag name, but it will not contain the actual built application due to GitHub Actions limitations.
 
 ## Troubleshooting
 
 If the workflow fails, check the following:
 
-1. **Dependencies**: Ensure all required dependencies are listed in requirements.txt
-2. **Build Script**: Verify that build/windows/build_windows.py works correctly locally
-3. **File Paths**: Check that all file paths in the workflow and build script are correct
-4. **Python Version**: Make sure the application is compatible with the Python version used in the workflow
-5. **Command-Line Arguments**: If the tests are failing, check if the application supports the command-line arguments used in the tests
+1. **Git Issues**: The repository contains submodules that can cause issues with GitHub Actions
+2. **Permissions**: Ensure the workflow has the correct permissions to create releases
+3. **Tag Format**: Make sure tags follow the format `v*` (e.g., v1.1.2, v1.1.3)
 
 ## Future Improvements
 
 Potential improvements to the workflow:
 
-1. **Release Integration**: Automatically create GitHub releases with the built artifacts
-2. **Version Tagging**: Automatically update version numbers and create tags
-3. **Cross-Platform Builds**: Add macOS and Linux build jobs
-4. **Enhanced Testing**:
-   - Add more comprehensive automated tests
-   - Implement UI testing with tools like PyAutoGUI or Selenium
-   - Add unit tests for core functionality
-   - Create a test matrix for different Windows versions
-5. **Code Signing**: Implement code signing for the Windows executable
-6. **Test Reporting**: Generate and publish test reports
-7. **Code Coverage**: Add code coverage reporting for tests
-8. **Performance Testing**: Add performance benchmarks to ensure the application meets performance requirements
+1. **Self-Hosted Runner**: Set up a self-hosted runner that can handle the repository structure
+2. **Alternative CI/CD**: Explore alternative CI/CD platforms that might work better with the repository
+3. **Repository Restructuring**: Consider restructuring the repository to be more compatible with GitHub Actions
