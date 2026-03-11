@@ -1,136 +1,140 @@
 # Resolume Composition Converter
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/platform-macOS|Windows-lightgrey.svg)](https://www.apple.com/macos)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/ci.yml/badge.svg)](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/ci.yml)
+[![Release Installers](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/release-installers.yml/badge.svg)](https://github.com/tijnisfijn/Resolume-Composition-Converter/actions/workflows/release-installers.yml)
 
-A desktop application for converting Resolume Arena composition files (.avc) between different resolutions and frame rates. Automatically adjusts all parameters while preserving timing and composition names. Now with media format conversion: replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.
+A desktop tool that converts Resolume Arena composition files (`.avc`) between resolutions and frame rates, including media path replacement and format switching (for example `.mp4` to `.mov`/`.dxv` with matching base filename).
 
 ![Resolume Composition Converter](screenshots/app_screenshot.png)
 
-## Open Source Project
+## A Note From The Maker
 
-This is an open-source project created by a single developer. Contributions, improvements, and feedback from the community are welcome and encouraged! If you'd like to contribute, please check out the [Future Roadmap](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Future-Roadmap) or the [Issues](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) page.
+I built this as a free tool for the Resolume community. It is vibe-coded and tested, and should be safe to use. But like any tool that modifies Arena compositions, always back up your `.avc` first and test in your own setup before show use. Some edge cases can still slip through.
 
-## Disclaimer
+If you find bugs, issues, or have feature requests, please open an issue:
+- `https://github.com/tijnisfijn/Resolume-Composition-Converter/issues`
 
-**Use at your own risk.** While this software has been tested, it is not regularly tested on all possible configurations and scenarios. Always make a backup of your composition files before using this converter. The author is not responsible for any data loss or damage that may occur from using this software.
+## Download
+
+Get the latest release:
+- `https://github.com/tijnisfijn/Resolume-Composition-Converter/releases/latest`
+
+Platform status:
+
+| Platform | Status |
+| --- | --- |
+| macOS | ✅ Available |
+| Windows | ✅ Available |
+
+Windows note:
+- Prebuilt downloads are currently not code-signed.
+- SmartScreen/AV may warn.
+- Use `More info -> Run anyway` if you trust the release source.
+
+macOS note:
+- App is currently not notarized.
+- Gatekeeper may block first launch.
+- Right-click app -> `Open` -> `Open` once.
+
+Prefer to avoid platform trust warnings:
+- Build from source yourself (instructions below). Local builds generally avoid these warnings.
+
+## Install (Quick)
+
+### Windows
+
+1. Download `Resolume-Composition-Converter-Setup.exe` from the latest release.
+2. Run installer and complete setup.
+3. Launch from Start menu or desktop shortcut.
+
+Alternative:
+1. Download `Resolume Composition Converter Windows.zip`.
+2. Extract and run `Resolume Composition Converter.exe`.
+
+### macOS
+
+1. Download `Resolume-Composition-Converter-macOS.dmg`.
+2. Open DMG, drag app to Applications.
+3. First launch: right-click app -> `Open` -> `Open`.
+
+Alternative:
+1. Download `Resolume Composition Converter Mac.zip`.
+2. Extract and move app bundle to Applications.
+
+For full install details, see `docs/INSTALL.md`.
 
 ## Features
 
-- Convert Resolume Arena compositions between different resolutions
-- Adjust frame rates while preserving timing
-- Maintain composition names and structure
-- Support for various media types (videos and images)
-- Replace media files with different formats (e.g., .MP4 with .MOV)
-- Preserve aspect ratio for different image formats (.jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp)
-- Simple and intuitive user interface with drag-and-drop support
-
-## Why Use This Tool?
-
-Visual artists, VJs, and AV professionals who use Resolume Arena often face a common challenge: adapting their carefully crafted compositions to different technical requirements. Whether it's upgrading to higher resolutions, changing frame rates, or switching media formats, these changes traditionally require painstaking manual work to rebuild compositions from scratch.
-
-When you manually recreate a composition at a new resolution or with different media files, you lose hours of work:
-- Recreating all clip placements and layer arrangements
-- Rebuilding complex effect chains and parameter settings
-- Reconstructing precise timing and transitions
-- Reestablishing dashboard controls and MIDI mappings
-- Redoing all transformations, masks, and blend modes
-
-The Resolume Composition Converter eliminates this tedious process by automatically adapting your compositions to new technical specifications while preserving all your creative decisions. For detailed use cases, check out the [Use Cases](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Use-Cases) page in the wiki.
-
-## Repository Structure
-
-- `/` - Core application files
-- `/build/mac/` - Mac-specific build files
-- `/build/windows/` - Windows-specific build files
-- `/dist/mac/` - Output directory for Mac builds
-- `/dist/windows/` - Output directory for Windows builds
-- `/screenshots/` - Application screenshots
-- `/icons/` - Application icons
-- `/documentation/` - Generated documentation
-
-## Installation
-
-### macOS
-
-1. Download the latest release from the [Releases page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
-2. Extract the ZIP file
-3. Drag the `Resolume Composition Converter.app` to your Applications folder
-### Windows
-
-Windows users need to build the application from source:
-
-1. Download the source code from the [Releases page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
-2. Follow the instructions in `build/windows/PC_BUILD_INSTRUCTIONS.md`
+- Resolution conversion for composition/clip/layer/group transforms.
+- Frame-rate conversion while preserving beats-based timing.
+- Media path rebasing from old root to new root.
+- Optional extension-agnostic media replacement (`same_basename.mp4 -> same_basename.mov`).
+- Text and generator parameter scaling.
+- Persistent effect position policy for unknown pixel-like effects.
 
 ## Usage
 
-1. Launch the application
-2. Select your input composition file (.avc)
-3. Choose an output location for the converted file
-4. Set your desired resolution and frame rate
-5. Optionally, provide paths to your old and new media files if you want to update file references
-6. Check "Ignore file extensions" if you want to replace media files with different formats (e.g., .MP4 with .MOV)
-7. Click "Convert Composition"
+1. Open app.
+2. Select input `.avc`.
+3. Choose output file.
+4. Set original and target resolution/fps.
+5. Optional: provide old/new media roots.
+6. Optional: enable `Ignore file extensions`.
+7. Click `Convert Composition`.
 
-For more detailed instructions, please refer to the [User Manual](MANUAL.md). For practical examples of how to use this tool in various scenarios, check out the [Use Cases](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Use-Cases) page in the wiki.
+Manual:
+- Markdown: `docs/MANUAL.md`
+- HTML: `documentation/MANUAL.html`
 
-## Building from Source
+## Build From Source
 
-### Prerequisites
-
-- Python 3.8 or newer
-- pip (Python package installer)
+Prerequisites:
+- Python 3.10+
+- `pip`
 
 ### macOS
 
 ```bash
-# Clone the repository
 git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
 cd Resolume-Composition-Converter
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-# Build the application
 python build/mac/build_mac.py
+bash scripts/create_macos_dmg.sh
 ```
 
 ### Windows
 
-```bash
-# Clone the repository
+```powershell
 git clone https://github.com/tijnisfijn/Resolume-Composition-Converter.git
 cd Resolume-Composition-Converter
-
-# Create and activate a virtual environment
-python -m venv venv
-venv\Scripts\activate
-
-# Install dependencies
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-# Build the application
 python build/windows/build_windows.py
 ```
 
-## Support
+## CI/CD
 
-For help and support, please [open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) on our GitHub repository.
+- CI workflow (`.github/workflows/ci.yml`):
+  - Runs tests on `windows-latest` and `macos-latest` for pushes/PRs.
+- Release workflow (`.github/workflows/release-installers.yml`):
+  - Trigger: tag push (`v*`) or manual dispatch.
+  - Builds:
+    - Windows portable ZIP + installer `.exe`
+    - macOS ZIP + `.dmg`
+  - Publishes artifacts to GitHub Releases on tag builds.
 
 ## Contributing
 
-Contributions are welcome! Whether you're a developer, designer, or user with ideas, there are many ways to help improve this project:
-
-1. Check the [Issues](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) page
-2. Open a new issue to discuss your idea
-3. Fork the repository and submit a pull request
-
-See the [Future Roadmap](https://github.com/tijnisfijn/Resolume-Composition-Converter/wiki/Future-Roadmap) for ideas on potential features that could be implemented.
+1. Open an issue to discuss bug/feature.
+2. Fork and branch.
+3. Add tests for behavior changes.
+4. Open a PR.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See `LICENSE`.

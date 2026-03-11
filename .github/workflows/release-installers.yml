@@ -1,0 +1,109 @@
+name: Release Installers
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build app bundle
+        run: python build/windows/build_windows.py
+
+      - name: Build installer (Inno Setup)
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
+        with:
+          path: build/windows/resolume_converter_installer.iss
+          options: /DAppVersion=${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-artifacts
+          path: |
+            dist/windows/Resolume Composition Converter Windows.zip
+            dist/windows/installer/Resolume-Composition-Converter-Setup.exe
+
+  build-macos:
+    name: Build macOS Installer
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build app bundle
+        run: python build/mac/build_mac.py
+
+      - name: Build DMG
+        run: bash scripts/create_macos_dmg.sh
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-artifacts
+          path: |
+            dist/mac/Resolume Composition Converter Mac.zip
+            dist/mac/Resolume-Composition-Converter-macOS.dmg
+
+  publish:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos]
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          sed "s/{{VERSION}}/${GITHUB_REF_NAME}/g" .github/release-notes-template.md > RELEASE_NOTES.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Resolume Composition Converter ${{ github.ref_name }}
+          files: |
+            release-artifacts/windows-release-artifacts/Resolume Composition Converter Windows.zip
+            release-artifacts/windows-release-artifacts/Resolume-Composition-Converter-Setup.exe
+            release-artifacts/macos-release-artifacts/Resolume Composition Converter Mac.zip
+            release-artifacts/macos-release-artifacts/Resolume-Composition-Converter-macOS.dmg
+          body_path: RELEASE_NOTES.md
