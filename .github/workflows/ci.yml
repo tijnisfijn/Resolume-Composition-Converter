@@ -32,5 +32,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Verify build runtime
+        run: python scripts/verify_build_runtime.py
+
       - name: Run tests
         run: python scripts/run_tests.py

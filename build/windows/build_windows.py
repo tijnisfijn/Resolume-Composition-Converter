@@ -73,6 +73,10 @@ def main():
     # Install Pillow for icon creation
     print("\nInstalling Pillow for icon creation...")
     subprocess.run([sys.executable, "-m", "pip", "install", "Pillow"], check=True)
+
+    # Fail fast if required runtime modules are not available (especially tkinter)
+    print("\nRunning build preflight checks...")
+    subprocess.run([sys.executable, "scripts/verify_build_runtime.py"], check=True)
     
     # Create Windows icon
     print("\nCreating Windows icon...")

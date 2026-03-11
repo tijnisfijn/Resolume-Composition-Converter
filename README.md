@@ -94,6 +94,7 @@ Manual:
 
 Prerequisites:
 - Python 3.10+
+- Python installation with working `tkinter`/Tcl-Tk
 - `pip`
 - `git`
 

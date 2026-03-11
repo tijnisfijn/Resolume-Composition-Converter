@@ -33,6 +33,7 @@ Gatekeeper note:
 
 Prerequisites:
 - Python 3.10+
+- Python installation with working `tkinter`/Tcl-Tk
 - `pip`
 
 ### Windows

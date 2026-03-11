@@ -27,6 +27,10 @@ def main():
     # Install requirements
     print("\nInstalling requirements...")
     subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
+
+    # Fail fast if required runtime modules are not available (especially tkinter)
+    print("\nRunning build preflight checks...")
+    subprocess.run([sys.executable, "scripts/verify_build_runtime.py"], check=True)
     
     # Build the application
     print("\nBuilding application with PyInstaller...")

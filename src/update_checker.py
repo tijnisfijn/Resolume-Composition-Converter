@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # update_checker.py - Update checking functionality for Resolume Composition Converter
 
-import requests
 import json
-import time
 import os
+import platform
+import time
+import urllib.error
+import urllib.request
 from version import get_version, is_newer_version
 
 # GitHub API URL for releases
@@ -12,7 +14,18 @@ GITHUB_API_URL = "https://api.github.com/repos/tijnisfijn/Resolume-Composition-C
 # How often to check for updates (in seconds) - 7 days
 UPDATE_CHECK_INTERVAL = 7 * 24 * 60 * 60
 # File to store last check timestamp
-LAST_CHECK_FILE = "last_update_check.json"
+def _get_update_check_file():
+    system = platform.system()
+    if system == "Windows":
+        base = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA") or os.path.expanduser("~")
+        return os.path.join(base, "Resolume Composition Converter", "last_update_check.json")
+    if system == "Darwin":
+        base = os.path.expanduser("~/Library/Application Support")
+        return os.path.join(base, "Resolume Composition Converter", "last_update_check.json")
+    base = os.getenv("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+    return os.path.join(base, "resolume-composition-converter", "last_update_check.json")
+
+LAST_CHECK_FILE = _get_update_check_file()
 
 def get_latest_version():
     """
@@ -20,16 +33,21 @@ def get_latest_version():
     Returns: (version_string, download_url, release_notes) or None if error
     """
     try:
-        response = requests.get(GITHUB_API_URL, timeout=5)
-        response.raise_for_status()  # Raise exception for HTTP errors
-        
-        data = response.json()
+        req = urllib.request.Request(
+            GITHUB_API_URL,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "Resolume-Composition-Converter",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode("utf-8"))
         version = data.get('tag_name', '').lstrip('v')  # Remove 'v' prefix if present
         download_url = data.get('html_url', '')
         release_notes = data.get('body', '')
-        
+
         return (version, download_url, release_notes)
-    except (requests.RequestException, json.JSONDecodeError, KeyError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, KeyError) as e:
         print(f"Error checking for updates: {e}")
         return None
 
@@ -47,7 +65,9 @@ def update_last_check_time():
     """Update the timestamp of the last update check"""
     try:
         # Ensure the directory exists
-        os.makedirs(os.path.dirname(LAST_CHECK_FILE), exist_ok=True)
+        dir_path = os.path.dirname(LAST_CHECK_FILE)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
         
         with open(LAST_CHECK_FILE, 'w') as f:
             json.dump({'last_check': time.time()}, f)

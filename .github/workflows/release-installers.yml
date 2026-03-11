@@ -28,6 +28,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Verify build runtime
+        run: python scripts/verify_build_runtime.py
+
       - name: Build app bundle
         run: python build/windows/build_windows.py
 
@@ -62,6 +65,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Verify build runtime
+        run: python scripts/verify_build_runtime.py
 
       - name: Build app bundle
         run: python build/mac/build_mac.py
@@ -103,7 +109,7 @@ jobs:
           name: Resolume Composition Converter ${{ github.ref_name }}
           files: |
             release-artifacts/windows-release-artifacts/Resolume Composition Converter Windows.zip
-            release-artifacts/windows-release-artifacts/Resolume-Composition-Converter-Setup.exe
+            release-artifacts/windows-release-artifacts/installer/Resolume-Composition-Converter-Setup.exe
             release-artifacts/macos-release-artifacts/Resolume Composition Converter Mac.zip
             release-artifacts/macos-release-artifacts/Resolume-Composition-Converter-macOS.dmg
           body_path: RELEASE_NOTES.md
