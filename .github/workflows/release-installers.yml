@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate version matches tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          python -c "from src.version import get_version; import os,sys; tag=os.environ['GITHUB_REF_NAME'].lstrip('v'); ver=get_version(); print(f'tag={tag} app={ver}'); sys.exit(0 if tag==ver else 1)"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -60,6 +65,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Validate version matches tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          python -c "from src.version import get_version; import os,sys; tag=os.environ['GITHUB_REF_NAME'].lstrip('v'); ver=get_version(); print(f'tag={tag} app={ver}'); sys.exit(0 if tag==ver else 1)"
 
       - name: Install dependencies
         run: |
