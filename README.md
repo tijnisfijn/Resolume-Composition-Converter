@@ -17,7 +17,7 @@ If you find bugs, issues, or have feature requests, please open an issue:
 ## Download
 
 Get the latest release:
-- `https://github.com/tijnisfijn/Resolume-Composition-Converter/releases/latest`
+- [Latest Release](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases/latest)
 
 Platform status:
 

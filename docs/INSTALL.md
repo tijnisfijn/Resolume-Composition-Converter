@@ -5,7 +5,7 @@ This guide covers both prebuilt releases and building from source.
 ## Prebuilt Releases (Recommended)
 
 Download the latest artifacts from:
-- `https://github.com/tijnisfijn/Resolume-Composition-Converter/releases`
+- [Releases Page](https://github.com/tijnisfijn/Resolume-Composition-Converter/releases)
 
 ### Windows
 
