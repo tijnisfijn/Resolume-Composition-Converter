@@ -5,7 +5,7 @@
 
 A desktop tool that converts Resolume Arena composition files (`.avc`) between resolutions and frame rates, including media path replacement and format switching (for example `.mp4` to `.mov`/`.dxv` with matching base filename).
 
-![Resolume Composition Converter](screenshots/app_screenshot.png)
+![Resolume Composition Converter Banner](screenshots/banner.jpg)
 
 ## A Note From The Maker
 
@@ -71,6 +71,10 @@ For full install details, see `docs/INSTALL.md`.
 - Optional extension-agnostic media replacement (`same_basename.mp4 -> same_basename.mov`).
 - Text and generator parameter scaling.
 - Persistent effect position policy for unknown pixel-like effects.
+
+UI preview:
+
+![Resolume Composition Converter UI](screenshots/app_screenshot.png)
 
 ## Usage
 
