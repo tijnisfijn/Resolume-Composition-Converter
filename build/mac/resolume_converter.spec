@@ -4,8 +4,11 @@ block_cipher = None
 
 # Get the repository root directory
 import os
-# Use hardcoded path to ensure correct location
-repo_root = '/Users/tijn/Code/UpscaleComp'
+# Resolve repository root relative to this spec file for reproducible builds
+spec_dir = os.path.dirname(__file__) if "__file__" in globals() else os.path.dirname(SPECPATH)
+repo_root = os.getcwd()
+if not os.path.exists(os.path.join(repo_root, "src", "resolume_gui.py")):
+    repo_root = os.path.abspath(os.path.join(spec_dir, "../.."))
 print(f"Repository root directory: {repo_root}")
 
 # Use absolute path for the main script
