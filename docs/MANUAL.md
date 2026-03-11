@@ -3,22 +3,35 @@
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Why Use This Tool?](#why-use-this-tool)
-3. [Interface Overview](#interface-overview)
-4. [File Organization](#file-organization)
-5. [Common Use Cases](#common-use-cases)
-6. [Converting a Composition](#converting-a-composition)
-7. [Supported Clip Types](#supported-clip-types)
-8. [Transform Effects](#transform-effects)
-9. [Understanding File Paths](#understanding-file-paths)
-10. [Best Practices](#best-practices)
-11. [Troubleshooting](#troubleshooting)
+2. [What's New in Current Build](#whats-new-in-current-build)
+3. [Why Use This Tool?](#why-use-this-tool)
+4. [Interface Overview](#interface-overview)
+5. [File Organization](#file-organization)
+6. [Common Use Cases](#common-use-cases)
+7. [Converting a Composition](#converting-a-composition)
+8. [Supported Clip Types](#supported-clip-types)
+9. [Transform Effects](#transform-effects)
+10. [Effect Position Rules (Smart Memory)](#effect-position-rules-smart-memory)
+11. [Understanding File Paths](#understanding-file-paths)
+12. [Best Practices](#best-practices)
+13. [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
 Resolume Composition Converter is a specialized tool designed to help VJs and visual artists convert their Resolume Arena compositions from one resolution and frame rate to another. This is particularly useful when upgrading from HD (1080p) to 4K, or from 25/30fps to 60fps.
 
 The application modifies the XML structure of your .avc files to adjust all relevant parameters, ensuring your composition looks and behaves correctly at the new resolution and frame rate. It also allows you to replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.
+
+## What's New in Current Build
+
+- Added cross-platform CI/CD for automated Windows and macOS build verification.
+- Added Windows installer output in CI (`.exe`) and macOS installer image output (`.dmg`).
+- Improved conversion coverage for **layer groups** (group transform handling and group video track size scaling).
+- Added smart handling for non-transform effects that use position/anchor parameters.
+- Added persistent per-effect conversion memory for unknown pixel-based effects.
+- Added explicit pixel conversion support for `ScreenLayerTransform`, including small values.
+- Added a UI manager to review/edit/reset remembered effect rules:
+  - `Help -> Effect Position Rules`
 
 ## Why Use This Tool?
 
@@ -63,6 +76,12 @@ The application interface is divided into three main sections:
 
 ### Convert Button
 - Click this button to process the composition once all settings are configured
+
+### Help Menu
+- **Check for Updates**: manually checks for a newer release.
+- **User Manual**: opens this manual.
+- **Effect Position Rules**: opens a manager to inspect/edit remembered conversion rules for unknown effects.
+- **About**: shows version and app details.
 
 ## File Organization
 
@@ -270,8 +289,24 @@ The converter automatically scales all transform effects found in your compositi
 
 ### Important Notes About Transforms
 - The converter focuses specifically on transform effects (position, anchor points)
-- Other effects that may contain pixel-based values (like masks, crops, etc.) are not automatically converted
-- After conversion, you may need to manually adjust some effects that contain pixel values
+- For non-transform effects that expose position/anchor parameters, the converter can also scale these values when they are clearly pixel-like.
+- For unknown effects, the app asks whether to treat that effect as pixel-based and remembers your choice for future conversions.
+
+## Effect Position Rules (Smart Memory)
+
+When the converter finds an effect type with position/anchor parameters and no known rule, it prompts you once:
+
+- **Convert**: treat that effect as pixel-based and scale those parameters.
+- **Skip**: leave those parameters unchanged.
+
+Your decision is saved and reused on later conversions.
+
+You can manage saved rules at any time via:
+- `Help -> Effect Position Rules`
+
+Notes:
+- `ScreenLayerTransform` is always treated as pixel-based.
+- Value ranges attached to converted parameters are scaled as well.
 
 ## Understanding File Paths
 
@@ -420,17 +455,13 @@ For the best results when converting compositions:
 
 #### Some effects don't scale properly
 
-**Cause**: While the converter automatically scales all transform effects, other effects with pixel-based values (masks, crops, distortions, etc.) are not automatically converted.
+**Cause**: Some effects use non-standard parameter semantics, so auto-detection may skip them.
 
 **Solution**:
-1. After conversion, check all effects that might contain pixel values
-2. Pay special attention to:
-   - Mask effects
-   - Crop effects
-   - Distortion effects
-   - Custom effects with position parameters
-3. Manually adjust these effects in Resolume to match the new resolution
-4. For future compositions, consider using relative values (percentages) instead of absolute pixel values when possible
+1. Re-run conversion and answer the unknown effect prompt appropriately (`Convert` or `Skip`)
+2. Open `Help -> Effect Position Rules` and verify/update saved rules
+3. Reconvert after adjusting rules
+4. Manually verify custom/experimental effects in Resolume output
 
 #### Timing issues after conversion
 
@@ -454,6 +485,6 @@ For the best results when converting compositions:
 
 If you encounter issues not covered in this manual:
 
-1. Check the [GitHub repository](https://github.com/yourusername/resolume-composition-converter/issues) for known issues
+1. Check the [GitHub repository](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues) for known issues
 2. Open a new issue with detailed information about your problem
 3. Include information about your operating system, composition size, and exact error messages

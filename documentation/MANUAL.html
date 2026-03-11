@@ -69,6 +69,7 @@
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
 <li><a href="#introduction">Introduction</a></li>
+<li><a href="#whats-new-in-current-build">What's New in Current Build</a></li>
 <li><a href="#why-use-this-tool">Why Use This Tool?</a></li>
 <li><a href="#interface-overview">Interface Overview</a></li>
 <li><a href="#file-organization">File Organization</a></li>
@@ -76,6 +77,7 @@
 <li><a href="#converting-a-composition">Converting a Composition</a></li>
 <li><a href="#supported-clip-types">Supported Clip Types</a></li>
 <li><a href="#transform-effects">Transform Effects</a></li>
+<li><a href="#effect-position-rules-smart-memory">Effect Position Rules (Smart Memory)</a></li>
 <li><a href="#understanding-file-paths">Understanding File Paths</a></li>
 <li><a href="#best-practices">Best Practices</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
@@ -83,6 +85,17 @@
 <h2 id="introduction">Introduction</h2>
 <p>Resolume Composition Converter is a specialized tool designed to help VJs and visual artists convert their Resolume Arena compositions from one resolution and frame rate to another. This is particularly useful when upgrading from HD (1080p) to 4K, or from 25/30fps to 60fps.</p>
 <p>The application modifies the XML structure of your .avc files to adjust all relevant parameters, ensuring your composition looks and behaves correctly at the new resolution and frame rate. It also allows you to replace media files with different formats (e.g., .MP4 with .DXV) while keeping the same base filename.</p>
+<h2 id="whats-new-in-current-build">What's New in Current Build</h2>
+<ul>
+<li>Added cross-platform CI/CD for automated Windows and macOS build verification.</li>
+<li>Added Windows installer output in CI (<code>.exe</code>) and macOS installer image output (<code>.dmg</code>).</li>
+<li>Improved conversion coverage for <strong>layer groups</strong> (group transform handling and group video track size scaling).</li>
+<li>Added smart handling for non-transform effects that use position/anchor parameters.</li>
+<li>Added persistent per-effect conversion memory for unknown pixel-based effects.</li>
+<li>Added explicit pixel conversion support for <code>ScreenLayerTransform</code>, including small values.</li>
+<li>Added a UI manager to review/edit/reset remembered effect rules:</li>
+<li><code>Help -&gt; Effect Position Rules</code></li>
+</ul>
 <h2 id="why-use-this-tool">Why Use This Tool?</h2>
 <h3 id="the-challenge-of-changing-resolutions-and-formats">The Challenge of Changing Resolutions and Formats</h3>
 <p>Visual artists, VJs, and AV professionals who use Resolume Arena often face a common challenge: adapting their carefully crafted compositions to different technical requirements. Whether it's upgrading to higher resolutions, changing frame rates, or switching media formats, these changes traditionally require painstaking manual work to rebuild compositions from scratch.</p>
@@ -128,6 +141,13 @@
 <h3 id="convert-button">Convert Button</h3>
 <ul>
 <li>Click this button to process the composition once all settings are configured</li>
+</ul>
+<h3 id="help-menu">Help Menu</h3>
+<ul>
+<li><strong>Check for Updates</strong>: manually checks for a newer release.</li>
+<li><strong>User Manual</strong>: opens this manual.</li>
+<li><strong>Effect Position Rules</strong>: opens a manager to inspect/edit remembered conversion rules for unknown effects.</li>
+<li><strong>About</strong>: shows version and app details.</li>
 </ul>
 <h2 id="file-organization">File Organization</h2>
 <h3 id="important-media-file-organization">Important: Media File Organization</h3>
@@ -341,9 +361,21 @@
 <h3 id="important-notes-about-transforms">Important Notes About Transforms</h3>
 <ul>
 <li>The converter focuses specifically on transform effects (position, anchor points)</li>
-<li>Other effects that may contain pixel-based values (like masks, crops, etc.) are not automatically converted</li>
-<li>After conversion, you may need to manually adjust some effects that contain pixel values</li>
+<li>For non-transform effects that expose position/anchor parameters, the converter can also scale these values when they are clearly pixel-like.</li>
+<li>For unknown effects, the app asks whether to treat that effect as pixel-based and remembers your choice for future conversions.</li>
 </ul>
+<h2 id="effect-position-rules-smart-memory">Effect Position Rules (Smart Memory)</h2>
+<p>When the converter finds an effect type with position/anchor parameters and no known rule, it prompts you once:</p>
+<ul>
+<li><strong>Convert</strong>: treat that effect as pixel-based and scale those parameters.</li>
+<li><strong>Skip</strong>: leave those parameters unchanged.</li>
+</ul>
+<p>Your decision is saved and reused on later conversions.</p>
+<p>You can manage saved rules at any time via:
+- <code>Help -&gt; Effect Position Rules</code></p>
+<p>Notes:
+- <code>ScreenLayerTransform</code> is always treated as pixel-based.
+- Value ranges attached to converted parameters are scaled as well.</p>
 <h2 id="understanding-file-paths">Understanding File Paths</h2>
 <p>The file path fields are crucial for ensuring your composition can find all media files after conversion. Here's how they work:</p>
 <h3 id="when-to-use-file-paths">When to Use File Paths</h3>
@@ -465,16 +497,12 @@
 1. For best results, use exact multiples for resolution changes (2x, 3x, etc.)
 2. You may need to manually adjust some positions in Resolume after conversion</p>
 <h4 id="some-effects-dont-scale-properly">Some effects don't scale properly</h4>
-<p><strong>Cause</strong>: While the converter automatically scales all transform effects, other effects with pixel-based values (masks, crops, distortions, etc.) are not automatically converted.</p>
+<p><strong>Cause</strong>: Some effects use non-standard parameter semantics, so auto-detection may skip them.</p>
 <p><strong>Solution</strong>:
-1. After conversion, check all effects that might contain pixel values
-2. Pay special attention to:
-   - Mask effects
-   - Crop effects
-   - Distortion effects
-   - Custom effects with position parameters
-3. Manually adjust these effects in Resolume to match the new resolution
-4. For future compositions, consider using relative values (percentages) instead of absolute pixel values when possible</p>
+1. Re-run conversion and answer the unknown effect prompt appropriately (<code>Convert</code> or <code>Skip</code>)
+2. Open <code>Help -&gt; Effect Position Rules</code> and verify/update saved rules
+3. Reconvert after adjusting rules
+4. Manually verify custom/experimental effects in Resolume output</p>
 <h4 id="timing-issues-after-conversion">Timing issues after conversion</h4>
 <p><strong>Cause</strong>: Frame rate conversion can affect timing, especially for complex animations.</p>
 <p><strong>Solution</strong>:
@@ -490,7 +518,7 @@
 <h3 id="getting-help">Getting Help</h3>
 <p>If you encounter issues not covered in this manual:</p>
 <ol>
-<li>Check the <a href="https://github.com/yourusername/resolume-composition-converter/issues">GitHub repository</a> for known issues</li>
+<li>Check the <a href="https://github.com/tijnisfijn/Resolume-Composition-Converter/issues">GitHub repository</a> for known issues</li>
 <li>Open a new issue with detailed information about your problem</li>
 <li>Include information about your operating system, composition size, and exact error messages</li>
 </ol>

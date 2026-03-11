@@ -1,17 +1,26 @@
 # Release Notes - Version 1.1.3 (Upcoming)
 
 ## New Features
-- Added GitHub Actions workflow for automated Windows builds
-- Improved Windows build process with CI/CD integration
+- Added cross-platform CI workflow (Windows + macOS test runs).
+- Added release workflow that builds:
+  - Windows installer (`.exe`) + portable ZIP
+  - macOS DMG + portable ZIP
+- Added release notes template automation for GitHub releases.
+- Added **Effect Position Rules** manager in app UI:
+  - `Help -> Effect Position Rules`
+  - lets users review/edit/reset remembered unknown-effect conversion rules.
 
 ## Improvements
-- Updated README with Windows build instructions using GitHub Actions
-- Added build status badge to README
-- Enhanced documentation for Windows users
+- Improved conversion coverage for **layer groups** (group transform and sizing handling).
+- Added smarter conversion for non-transform effects with position/anchor parameters.
+- Added explicit pixel conversion support for `ScreenLayerTransform` (including small values).
+- Expanded README and install docs with beginner-friendly build-from-source steps.
+- Updated manual and generated HTML documentation for the new behavior.
 
 ## Technical Updates
-- Implemented automated build and artifact publishing
-- Streamlined Windows installation process
+- Added Inno Setup installer script for Windows CI builds.
+- Added macOS DMG creation script for CI builds.
+- Removed deprecated artifact action usage from old workflow path.
 
 ---
 
