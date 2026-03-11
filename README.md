@@ -23,8 +23,8 @@ Platform status:
 
 | Platform | Status |
 | --- | --- |
-| macOS | ✅ Available |
-| Windows | ✅ Available |
+| macOS | Available |
+| Windows | Available |
 
 Windows note:
 - Prebuilt downloads are currently not code-signed.
@@ -91,6 +91,22 @@ Manual:
 Prerequisites:
 - Python 3.10+
 - `pip`
+- `git`
+
+If this is your first time building from source, use AI as a guide:
+1. Open ChatGPT/Claude/Copilot.
+2. Paste this prompt:
+
+```text
+I’m on [Windows/macOS]. Walk me step by step to build and run this repo:
+https://github.com/tijnisfijn/Resolume-Composition-Converter
+
+Assume I am not technical. Give me one command at a time, wait for my result,
+then give the next command. If a command fails, troubleshoot before continuing.
+```
+
+3. Run each command one by one.
+4. Ask the AI: `Where is the built app located on disk?`
 
 ### macOS
 
@@ -105,6 +121,10 @@ python build/mac/build_mac.py
 bash scripts/create_macos_dmg.sh
 ```
 
+Expected output:
+- `dist/mac/Resolume Composition Converter Mac.zip`
+- `dist/mac/Resolume-Composition-Converter-macOS.dmg`
+
 ### Windows
 
 ```powershell
@@ -116,6 +136,18 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 python build/windows/build_windows.py
 ```
+
+Expected output:
+- `dist/windows/Resolume Composition Converter Windows.zip`
+- `dist/windows/Resolume Composition Converter\Resolume Composition Converter.exe`
+
+Common first-time issues:
+- `python` not found:
+  - Install Python, then reopen terminal.
+- PowerShell blocks activate script:
+  - Run: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
+- Build fails midway:
+  - Re-run `pip install -r requirements.txt`, then retry build.
 
 ## CI/CD
 
