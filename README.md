@@ -12,7 +12,7 @@ A desktop tool that converts Resolume Arena composition files (`.avc`) between r
 I built this as a free tool for the Resolume community. It is vibe-coded and tested, and should be safe to use. But like any tool that modifies Arena compositions, always back up your `.avc` first and test in your own setup before show use. Some edge cases can still slip through.
 
 If you find bugs, issues, or have feature requests, please open an issue:
-- `https://github.com/tijnisfijn/Resolume-Composition-Converter/issues`
+- [Open an issue](https://github.com/tijnisfijn/Resolume-Composition-Converter/issues)
 
 ## Download
 
@@ -61,7 +61,7 @@ Alternative:
 1. Download `Resolume Composition Converter Mac.zip`.
 2. Extract and move app bundle to Applications.
 
-For full install details, see `docs/INSTALL.md`.
+For full install details, see [Install Guide](docs/INSTALL.md).
 
 ## Features
 
@@ -87,8 +87,8 @@ UI preview:
 7. Click `Convert Composition`.
 
 Manual:
-- Markdown: `docs/MANUAL.md`
-- HTML: `documentation/MANUAL.html`
+- Markdown: [docs/MANUAL.md](docs/MANUAL.md)
+- HTML: [documentation/MANUAL.html](documentation/MANUAL.html)
 
 ## Build From Source
 
@@ -155,9 +155,9 @@ Common first-time issues:
 
 ## CI/CD
 
-- CI workflow (`.github/workflows/ci.yml`):
+- CI workflow ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
   - Runs tests on `windows-latest` and `macos-latest` for pushes/PRs.
-- Release workflow (`.github/workflows/release-installers.yml`):
+- Release workflow ([.github/workflows/release-installers.yml](.github/workflows/release-installers.yml)):
   - Trigger: tag push (`v*`) or manual dispatch.
   - Builds:
     - Windows portable ZIP + installer `.exe`
@@ -173,4 +173,4 @@ Common first-time issues:
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [LICENSE](LICENSE).
