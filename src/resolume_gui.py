@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import xml.etree.ElementTree as ET
 import os
+import re
+import json
+import platform
 import webbrowser
 import threading
 from version import get_version
@@ -74,85 +77,204 @@ def find_matching_file(old_file_path, new_directory, ignore_extensions=False):
     print(f"No match found for {old_basename}{old_ext} in {new_directory}")
     return None
 
-def update_file_paths_with_extension_matching(root, old_path, new_path):
+def _split_path_parts(path_str):
+    return [p for p in re.split(r"[\\/]", path_str) if p and p != "."]
+
+def _rebase_path(file_path, old_path, new_path):
+    if not old_path or not new_path:
+        return file_path
+
+    if old_path in file_path:
+        return file_path.replace(old_path, new_path)
+
+    file_parts = _split_path_parts(file_path)
+    old_parts = _split_path_parts(old_path)
+    new_parts = _split_path_parts(new_path)
+
+    if not old_parts:
+        return file_path
+
+    old_media_folder = old_parts[-1]
+    try:
+        idx = file_parts.index(old_media_folder)
+    except ValueError:
+        return file_path
+
+    relative_parts = file_parts[idx + 1:]
+    rebased_parts = new_parts + relative_parts
+    rebased = "/".join(rebased_parts)
+    if file_path.startswith("./"):
+        return "./" + rebased
+    return rebased
+
+def update_file_paths(root, old_path, new_path, ignore_extensions=False):
     """
-    Update file paths in the XML tree to point to files in the new directory,
-    matching files with the same base name but potentially different extensions.
-    
-    Args:
-        root: The root element of the XML tree
-        old_path: The old media directory path
-        new_path: The new media directory path
-        
-    Returns:
-        int: The number of file paths updated
+    Update file paths in the XML tree to point to files in the new directory.
+
+    When ignore_extensions is True, match by base name and file type. If no match
+    is found, fall back to rebasing the path to the new directory.
     """
+    if not old_path or not new_path:
+        return 0
+
     paths_updated = 0
-    
-    print(f"\n=== UPDATING FILE PATHS WITH EXTENSION MATCHING ===")
+
+    print(f"\n=== UPDATING FILE PATHS ===")
     print(f"Old path: {old_path}")
     print(f"New path: {new_path}")
-    
-    # Get a list of all files in the new directory
-    if not os.path.exists(new_path):
-        print(f"New directory does not exist: {new_path}")
-        return 0
-    
-    new_files = os.listdir(new_path)
-    print(f"Files in new directory: {new_files}")
-    
-    # Create a mapping of base names to full file paths
-    new_file_map = {}
-    for file_name in new_files:
-        base_name = os.path.splitext(file_name)[0].lower()
-        new_file_map[base_name] = os.path.join(new_path, file_name)
-    
-    print(f"New file map: {new_file_map}")
-    
+    print(f"Ignore extensions: {ignore_extensions}")
+
+    def update_value(getter, setter):
+        nonlocal paths_updated
+        file_path = getter()
+        if not file_path:
+            return
+
+        new_file_path = None
+        if ignore_extensions:
+            matching_file = find_matching_file(file_path, new_path, ignore_extensions=True)
+            if matching_file:
+                new_file_path = matching_file
+            else:
+                new_file_path = _rebase_path(file_path, old_path, new_path)
+        else:
+            new_file_path = _rebase_path(file_path, old_path, new_path)
+
+        if new_file_path and new_file_path != file_path:
+            setter(new_file_path)
+            paths_updated += 1
+
     # Update VideoFormatReaderSource paths
     for video_source in root.findall(".//VideoFormatReaderSource"):
-        file_path = video_source.get("fileName")
-        if file_path:
-            print(f"Processing VideoFormatReaderSource path: {file_path}")
-            
-            # Extract the base name without extension
-            base_name = os.path.splitext(os.path.basename(file_path))[0].lower()
-            print(f"Base name: {base_name}")
-            
-            # Check if we have a matching file in the new directory
-            if base_name in new_file_map:
-                matching_file = new_file_map[base_name]
-                video_source.set("fileName", matching_file)
-                print(f"Updated VideoFormatReaderSource path: {file_path} -> {matching_file}")
-                paths_updated += 1
-            else:
-                print(f"No matching file found for {base_name}")
-    
+        update_value(lambda: video_source.get("fileName"),
+                     lambda v: video_source.set("fileName", v))
+
     # Update PreloadData paths
     for preload in root.findall(".//PreloadData/VideoFile"):
-        file_path = preload.get("value")
-        if file_path:
-            print(f"Processing PreloadData path: {file_path}")
-            
-            # Extract the base name without extension
-            base_name = os.path.splitext(os.path.basename(file_path))[0].lower()
-            print(f"Base name: {base_name}")
-            
-            # Check if we have a matching file in the new directory
-            if base_name in new_file_map:
-                matching_file = new_file_map[base_name]
-                preload.set("value", matching_file)
-                print(f"Updated PreloadData path: {file_path} -> {matching_file}")
-                paths_updated += 1
-            else:
-                print(f"No matching file found for {base_name}")
-    
-    print(f"Updated {paths_updated} file paths with extension matching")
+        update_value(lambda: preload.get("value"),
+                     lambda v: preload.set("value", v))
+
+    print(f"Updated {paths_updated} file paths")
     return paths_updated
+
+PIXEL_LIKE_THRESHOLD = 100.0
+
+def _is_pixel_like_value(raw_value):
+    try:
+        return abs(float(raw_value)) >= PIXEL_LIKE_THRESHOLD
+    except (TypeError, ValueError):
+        return False
+
+def _scale_value_range_if_pixel_like(param_range, resolution_factor):
+    """Scale ValueRange min/max bounds only when they look pixel-based."""
+    for value_range in param_range.findall("./ValueRange"):
+        min_raw = value_range.get("min")
+        max_raw = value_range.get("max")
+        if not _is_pixel_like_value(min_raw) and not _is_pixel_like_value(max_raw):
+            continue
+        try:
+            if min_raw is not None:
+                value_range.set("min", str(float(min_raw) * resolution_factor))
+            if max_raw is not None:
+                value_range.set("max", str(float(max_raw) * resolution_factor))
+        except ValueError:
+            continue
+
+def _scale_all_value_ranges(param_range, resolution_factor):
+    """Scale all ValueRange min/max bounds regardless of threshold."""
+    for value_range in param_range.findall("./ValueRange"):
+        min_raw = value_range.get("min")
+        max_raw = value_range.get("max")
+        try:
+            if min_raw is not None:
+                value_range.set("min", str(float(min_raw) * resolution_factor))
+            if max_raw is not None:
+                value_range.set("max", str(float(max_raw) * resolution_factor))
+        except ValueError:
+            continue
+
+def _get_effect_policy_path():
+    system = platform.system()
+    if system == "Windows":
+        base = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA") or os.path.expanduser("~")
+        return os.path.join(base, "Resolume Composition Converter", "effect_position_policy.json")
+    if system == "Darwin":
+        base = os.path.expanduser("~/Library/Application Support")
+        return os.path.join(base, "Resolume Composition Converter", "effect_position_policy.json")
+    base = os.getenv("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+    return os.path.join(base, "resolume-composition-converter", "effect_position_policy.json")
+
+def load_effect_position_policy():
+    path = _get_effect_policy_path()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        pass
+    return {}
+
+def save_effect_position_policy(policy):
+    path = _get_effect_policy_path()
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(policy, f, indent=2, sort_keys=True)
+    except OSError as e:
+        print(f"Warning: Could not save effect position policy: {e}")
+
+def scan_unknown_position_effects(input_file, policy):
+    """
+    Find non-transform/non-text effects that expose position/anchor params and
+    do not yet have an explicit policy entry.
+    """
+    tree = ET.parse(input_file)
+    root = tree.getroot()
+
+    excluded_effect_types = {
+        "TransformEffect",
+        "TextBlock",
+        "TextEffect",
+        "TextGenerator",
+        "BlockTextGenerator",
+    }
+    always_pixel_effect_types = {
+        "ScreenLayerTransform",
+    }
+    unknown = {}
+
+    for render_pass in root.findall(".//RenderPass"):
+        effect_type = render_pass.get("type", "")
+        if (not effect_type or
+            effect_type in excluded_effect_types or
+            effect_type in always_pixel_effect_types or
+            effect_type in policy):
+            continue
+
+        params_node = render_pass.find("./Params")
+        if params_node is None:
+            continue
+
+        for param in params_node.findall(".//ParamRange"):
+            if param.get("name") not in ["Position X", "Position Y", "Anchor X", "Anchor Y", "Anchor Z"]:
+                continue
+
+            current = unknown.get(effect_type)
+            if current is None:
+                unknown[effect_type] = {
+                    "count": 1,
+                    "sample_value": param.get("value", ""),
+                }
+            else:
+                current["count"] += 1
+            break
+
+    return unknown
 
 def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                         resolution_factor=2.0, framerate_factor=2.4, new_name=None,
-                        ignore_extensions=False):
+                        ignore_extensions=False, effect_position_policy=None):
     """
     Adjust a Resolume composition file for higher resolution and new frame rate,
     WITHOUT altering the original composition on disk.
@@ -186,9 +308,13 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
     paths_updated = 0
     custom_durations_preserved = 0
     text_components_found = 0  # New counter for text components
+    position_ranges_adjusted = 0
+    orig_comp_w = None
+    orig_comp_h = None
     
     # Keep track of transforms we've already processed
     processed_transform_ids = set()
+    effect_position_policy = effect_position_policy or {}
     
     # DEBUG: Find all text-related components
     text_blocks = root.findall(".//RenderPass[@type='TextBlock']")
@@ -206,6 +332,8 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
     if comp_info is not None:
         old_comp_w = int(comp_info.get("width"))
         old_comp_h = int(comp_info.get("height"))
+        orig_comp_w = old_comp_w
+        orig_comp_h = old_comp_h
         comp_info.set("width", str(int(old_comp_w * resolution_factor)))
         comp_info.set("height", str(int(old_comp_h * resolution_factor)))
         
@@ -309,6 +437,41 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     transforms_adjusted += 1
                     print(f"  Adjusted {param_name} from {old_val} to {new_val}")
 
+    # --- 3c) Update each Group's VideoTrack width/height and transforms ---
+    for group in root.findall(".//Group"):
+        group_params = group.find(".//VideoTrack/Params")
+        if group_params is not None:
+            param_width = group_params.find(".//ParamRange[@name='Width']")
+            param_height = group_params.find(".//ParamRange[@name='Height']")
+            if param_width is not None:
+                w_val = float(param_width.get("value"))
+                param_width.set("value", str(int(w_val * resolution_factor)))
+            if param_height is not None:
+                h_val = float(param_height.get("value"))
+                param_height.set("value", str(int(h_val * resolution_factor)))
+
+        group_transforms = group.findall(".//VideoTrack/RenderPass/RenderPass[@type='TransformEffect']")
+        print(f"Found {len(group_transforms)} transforms in group")
+        transform_count = 0
+        for group_transform in group_transforms:
+            transform_count += 1
+            transforms_processed += 1
+
+            transform_id = group_transform.get("uniqueId", None)
+            if transform_id:
+                processed_transform_ids.add(transform_id)
+
+            print(f"Processing group transform {transform_count} (ID: {transform_id})")
+            params = group_transform.findall(".//ParamRange")
+            for param in params:
+                param_name = param.get("name")
+                if param_name in ["Position X", "Position Y", "Anchor X", "Anchor Y", "Anchor Z"]:
+                    old_val = float(param.get("value"))
+                    new_val = old_val * resolution_factor
+                    param.set("value", str(new_val))
+                    transforms_adjusted += 1
+                    print(f"  Adjusted {param_name} from {old_val} to {new_val}")
+
     # --- Process text components specifically ---
     for text_component_type, components in [
         ("TextBlock", text_blocks),
@@ -342,259 +505,66 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     except (ValueError, TypeError) as e:
                         print(f"DEBUG: Error scaling text parameter {param_name}: {e}")
 
+                if param_name in ["Position X", "Position Y", "Anchor X", "Anchor Y", "Anchor Z"]:
+                    _scale_value_range_if_pixel_like(param, resolution_factor)
+
+    # --- Process non-transform effects that also expose position/anchor params ---
+    # Covers effects like ScreenLayerTransform while avoiding double-scaling
+    # TransformEffect and text blocks that are already handled above.
+    excluded_effect_types = {
+        "TransformEffect",
+        "TextBlock",
+        "TextEffect",
+        "TextGenerator",
+        "BlockTextGenerator",
+    }
+    always_pixel_effect_types = {
+        "ScreenLayerTransform",
+    }
+    for render_pass in root.findall(".//RenderPass"):
+        effect_type = render_pass.get("type", "")
+        if effect_type in excluded_effect_types:
+            continue
+
+        params_node = render_pass.find("./Params")
+        if params_node is None:
+            continue
+
+        for param in params_node.findall(".//ParamRange"):
+            param_name = param.get("name")
+            if param_name not in ["Position X", "Position Y", "Anchor X", "Anchor Y", "Anchor Z"]:
+                continue
+
+            raw_value = param.get("value")
+            is_always_pixel = effect_type in always_pixel_effect_types
+            policy_mode = effect_position_policy.get(effect_type)
+            should_convert = (
+                is_always_pixel or
+                policy_mode == "convert" or
+                (policy_mode is None and _is_pixel_like_value(raw_value))
+            )
+            if should_convert:
+                try:
+                    old_val = float(raw_value)
+                    new_val = old_val * resolution_factor
+                    param.set("value", str(new_val))
+                    transforms_adjusted += 1
+                    position_ranges_adjusted += 1
+                    print(f"Adjusted {effect_type} {param_name} from {old_val} to {new_val}")
+                except ValueError:
+                    pass
+
+            if is_always_pixel or policy_mode == "convert":
+                _scale_all_value_ranges(param, resolution_factor)
+            elif policy_mode != "skip":
+                _scale_value_range_if_pixel_like(param, resolution_factor)
+
     # --- 4) Process each clip ---
     clips = root.findall(".//Clip")
     for clip in clips:
         clips_modified += 1  # Count all clips, including generators and routers
 
-        # 4a) Optional path replacement (only if we actually find a VideoFormatReaderSource)
-        video_source = clip.find(".//VideoFormatReaderSource")
-        if video_source is not None and old_path and new_path:
-            file_path = video_source.get("fileName")
-            
-            if file_path:
-                # Extract the media folder name and filename
-                # This handles both absolute and relative paths
-                old_path_parts = os.path.normpath(old_path).split(os.sep)
-                file_path_parts = os.path.normpath(file_path).split(os.sep)
-                
-                # Get the last part of old_path (usually the media folder name)
-                old_media_folder = old_path_parts[-1] if old_path_parts else ""
-                
-                # Check if the media folder name appears in the file path
-                media_folder_index = -1
-                for i, part in enumerate(file_path_parts):
-                    if part == old_media_folder:
-                        media_folder_index = i
-                        break
-                
-                if media_folder_index >= 0:
-                    # Construct new path by replacing everything from media folder onwards
-                    new_path_parts = os.path.normpath(new_path).split(os.sep)
-                    new_media_folder = new_path_parts[-1] if new_path_parts else ""
-                    
-                    # Replace the media folder in the path
-                    file_path_parts[media_folder_index] = new_media_folder
-                    
-                    # If ignore_extensions is True, handle the filename part differently
-                    if ignore_extensions and media_folder_index < len(file_path_parts) - 1:
-                        # Get the filename part (last part of the path)
-                        old_filename = file_path_parts[-1]
-                        old_basename = os.path.splitext(old_filename)[0]
-                        
-                        # Find matching files in the new path with the same base name
-                        new_dir = os.path.join(*new_path_parts)
-                        if os.path.exists(new_dir):
-                            found_match = False
-                            for new_file in os.listdir(new_dir):
-                                new_basename = os.path.splitext(new_file)[0]
-                                if new_basename.lower() == old_basename.lower():
-                                    # Found a match with the same base name but potentially different extension
-                                    file_path_parts[-1] = new_file
-                                    print(f"Replaced {old_filename} with {new_file} (ignore extensions)")
-                                    
-                                    # Create the full path to the new file
-                                    new_file_path = os.path.join(new_dir, new_file)
-                                    
-                                    # Update the path to point directly to the new file
-                                    video_source.set("fileName", new_file_path)
-                                    print(f"DIRECT PATH UPDATE: {file_path} -> {new_file_path}")
-                                    
-                                    found_match = True
-                                    break
-                            
-                            # If no exact match was found, try a more flexible approach
-                            if not found_match:
-                                for new_file in os.listdir(new_dir):
-                                    new_basename = os.path.splitext(new_file)[0]
-                                    # Check if the old basename is contained within the new basename
-                                    # This helps with files that might have additional suffixes or prefixes
-                                    if old_basename.lower() in new_basename.lower() or new_basename.lower() in old_basename.lower():
-                                        file_path_parts[-1] = new_file
-                                        print(f"Replaced {old_filename} with {new_file} (partial name match)")
-                                        
-                                        # Create the full path to the new file
-                                        new_file_path = os.path.join(new_dir, new_file)
-                                        
-                                        # Update the path to point directly to the new file
-                                        video_source.set("fileName", new_file_path)
-                                        print(f"DIRECT PATH UPDATE (partial match): {file_path} -> {new_file_path}")
-                                        
-                                        break
-                    
-                    # Reconstruct the path with the appropriate separator
-                    if file_path.startswith("./"):
-                        new_file_path = "./" + "/".join(file_path_parts[1:])
-                    else:
-                        new_file_path = "/".join(file_path_parts)
-                    
-                    video_source.set("fileName", new_file_path)
-                    
-                    paths_updated += 1
-                else:
-                    # Initialize matching_file_path to None
-                    matching_file_path = None
-                    
-                    # If we can't find the media folder, use our helper function to find matching files
-                    if ignore_extensions:
-                        # Extract the base name (without extension) from the file path
-                        file_path_dir = os.path.dirname(file_path)
-                        file_path_basename = os.path.splitext(os.path.basename(file_path))[0]
-                        
-                        print(f"DEBUG: Processing file: {file_path}")
-                        print(f"DEBUG: File basename: {file_path_basename}")
-                        
-                        # Use our helper function to find a matching file in the new directory
-                        matching_file_path = find_matching_file(file_path, new_path, ignore_extensions=True)
-                        
-                        if matching_file_path:
-                            # Get the extension from the matching file
-                            matching_ext = os.path.splitext(matching_file_path)[1]
-                            
-                            print(f"EXTENSION REPLACEMENT: {file_path} -> {matching_file_path}")
-                            print(f"  Original extension: {os.path.splitext(file_path)[1]}")
-                            print(f"  New extension: {matching_ext}")
-                            
-                            # Update the path in the XML to point directly to the matching file
-                            video_source.set("fileName", matching_file_path)
-                            print(f"UPDATED PATH TO NEW DIRECTORY: {matching_file_path}")
-                            
-                            paths_updated += 1
-                        else:
-                            print(f"INFO: No matching file found for {file_path}, keeping original path")
-                    elif old_path in file_path:
-                        # Original direct replacement logic
-                        new_file_path = file_path.replace(old_path, new_path)
-                        video_source.set("fileName", new_file_path)
-                        paths_updated += 1
-                        print(f"REPLACED: {file_path} -> {new_file_path}")
-                    else:
-                        # Original direct replacement logic
-                        if old_path in file_path:
-                            new_file_path = file_path.replace(old_path, new_path)
-                            video_source.set("fileName", new_file_path)
-                            paths_updated += 1
-        
-            # Also check PreloadData
-            preload = clip.find(".//PreloadData/VideoFile")
-            if preload is not None:
-                file_path = preload.get("value")
-                
-                if file_path:
-                    # Extract the media folder name and filename
-                    # This handles both absolute and relative paths
-                    old_path_parts = os.path.normpath(old_path).split(os.sep)
-                    file_path_parts = os.path.normpath(file_path).split(os.sep)
-                    
-                    # Get the last part of old_path (usually the media folder name)
-                    old_media_folder = old_path_parts[-1] if old_path_parts else ""
-                    
-                    # Check if the media folder name appears in the file path
-                    media_folder_index = -1
-                    for i, part in enumerate(file_path_parts):
-                        if part == old_media_folder:
-                            media_folder_index = i
-                            break
-                    
-                    if media_folder_index >= 0:
-                        # Construct new path by replacing everything from media folder onwards
-                        new_path_parts = os.path.normpath(new_path).split(os.sep)
-                        new_media_folder = new_path_parts[-1] if new_path_parts else ""
-                        
-                        # Replace the media folder in the path
-                        file_path_parts[media_folder_index] = new_media_folder
-                        
-                        # If ignore_extensions is True, handle the filename part differently
-                        if ignore_extensions and media_folder_index < len(file_path_parts) - 1:
-                            # Get the filename part (last part of the path)
-                            old_filename = file_path_parts[-1]
-                            old_basename = os.path.splitext(old_filename)[0]
-                            
-                            # Find matching files in the new path with the same base name
-                            new_dir = os.path.join(*new_path_parts)
-                            if os.path.exists(new_dir):
-                                found_match = False
-                                for new_file in os.listdir(new_dir):
-                                    new_basename = os.path.splitext(new_file)[0]
-                                    if new_basename.lower() == old_basename.lower():
-                                        # Found a match with the same base name but potentially different extension
-                                        file_path_parts[-1] = new_file
-                                        print(f"Replaced {old_filename} with {new_file} in PreloadData (ignore extensions)")
-                                        
-                                        # Create the full path to the new file
-                                        new_file_path = os.path.join(new_dir, new_file)
-                                        
-                                        # Update the path to point directly to the new file
-                                        preload.set("value", new_file_path)
-                                        print(f"DIRECT PRELOADDATA PATH UPDATE: {file_path} -> {new_file_path}")
-                                        
-                                        found_match = True
-                                        break
-                                
-                                # If no exact match was found, try a more flexible approach
-                                if not found_match:
-                                    for new_file in os.listdir(new_dir):
-                                        new_basename = os.path.splitext(new_file)[0]
-                                        # Check if the old basename is contained within the new basename
-                                        # This helps with files that might have additional suffixes or prefixes
-                                        if old_basename.lower() in new_basename.lower() or new_basename.lower() in old_basename.lower():
-                                            file_path_parts[-1] = new_file
-                                            print(f"Replaced {old_filename} with {new_file} in PreloadData (partial name match)")
-                                            
-                                            # Create the full path to the new file
-                                            new_file_path = os.path.join(new_dir, new_file)
-                                            
-                                            # Update the path to point directly to the new file
-                                            preload.set("value", new_file_path)
-                                            print(f"DIRECT PRELOADDATA PATH UPDATE (partial match): {file_path} -> {new_file_path}")
-                                            
-                                            break
-                        
-                        # Reconstruct the path with the appropriate separator
-                        if file_path.startswith("./"):
-                            new_file_path = "./" + "/".join(file_path_parts[1:])
-                        else:
-                            new_file_path = "/".join(file_path_parts)
-                        
-                        preload.set("value", new_file_path)
-                        
-                        paths_updated += 1
-                    else:
-                        # Initialize matching_file_path to None
-                        matching_file_path = None
-                        
-                        # If we can't find the media folder, use our helper function to find matching files
-                        if ignore_extensions:
-                            # Extract the base name (without extension) from the file path
-                            file_path_dir = os.path.dirname(file_path)
-                            file_path_basename = os.path.splitext(os.path.basename(file_path))[0]
-                            
-                            print(f"DEBUG: Processing PreloadData file: {file_path}")
-                            print(f"DEBUG: PreloadData file basename: {file_path_basename}")
-                            
-                            # Use our helper function to find a matching file in the new directory
-                            matching_file_path = find_matching_file(file_path, new_path, ignore_extensions=True)
-                            
-                            if matching_file_path:
-                                # Get the extension from the matching file
-                                matching_ext = os.path.splitext(matching_file_path)[1]
-                                
-                                print(f"EXTENSION REPLACEMENT (PreloadData): {file_path} -> {matching_file_path}")
-                                print(f"  Original extension: {os.path.splitext(file_path)[1]}")
-                                print(f"  New extension: {matching_ext}")
-                                
-                                # Update the path in the XML to point directly to the matching file
-                                preload.set("value", matching_file_path)
-                                print(f"UPDATED PRELOADDATA PATH TO NEW DIRECTORY: {matching_file_path}")
-                                
-                                paths_updated += 1
-                            else:
-                                print(f"INFO: No matching file found for PreloadData {file_path}, keeping original path")
-                        elif old_path in file_path:
-                            # Original direct replacement logic
-                            new_file_path = file_path.replace(old_path, new_path)
-                            preload.set("value", new_file_path)
-                            paths_updated += 1
+        # 4a) File path updates are handled in a single pass after clip processing
 
         # 4b) Update all transform effects (Position, Anchor, Scale) by resolution_factor
         transforms = clip.findall(".//VideoTrack/RenderPass/RenderPass[@type='TransformEffect']")
@@ -777,12 +747,25 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                     except (ValueError, TypeError) as e:
                         # If we can't parse the values, use default scaling
                         print(f"IMAGE DEBUG: Error parsing image dimensions: {e}")
-                        primary_source.set("width", str(int(1920 * resolution_factor)))
-                        primary_source.set("height", str(int(1080 * resolution_factor)))
+                        fallback_w = orig_comp_w if orig_comp_w is not None else 1920
+                        fallback_h = orig_comp_h if orig_comp_h is not None else 1080
+                        primary_source.set("width", str(int(fallback_w * resolution_factor)))
+                        primary_source.set("height", str(int(fallback_h * resolution_factor)))
                 else:
-                    # For videos, use the standard 16:9 scaling
-                    primary_source.set("width", str(int(1920 * resolution_factor)))
-                    primary_source.set("height", str(int(1080 * resolution_factor)))
+                    # For videos, scale existing dimensions when available
+                    try:
+                        if "width" in primary_source.attrib and "height" in primary_source.attrib:
+                            current_width = int(primary_source.get("width"))
+                            current_height = int(primary_source.get("height"))
+                            primary_source.set("width", str(int(current_width * resolution_factor)))
+                            primary_source.set("height", str(int(current_height * resolution_factor)))
+                        else:
+                            raise ValueError("Missing width/height")
+                    except (ValueError, TypeError):
+                        fallback_w = orig_comp_w if orig_comp_w is not None else 1920
+                        fallback_h = orig_comp_h if orig_comp_h is not None else 1080
+                        primary_source.set("width", str(int(fallback_w * resolution_factor)))
+                        primary_source.set("height", str(int(fallback_h * resolution_factor)))
             else:
                 # For generator/router clips, we still want to scale the resolution
                 # but we need to be careful about how we do it
@@ -833,12 +816,9 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
                 transforms_adjusted += 1
                 print(f"  Adjusted {param_name} from {old_val} to {new_val}")
 
-    # --- 6) If ignore_extensions is True, update file paths with extension matching ---
-    if ignore_extensions and old_path and new_path:
-        # Use our new function to update file paths with extension matching
-        extension_paths_updated = update_file_paths_with_extension_matching(root, old_path, new_path)
-        paths_updated += extension_paths_updated
-        print(f"Updated {extension_paths_updated} file paths with extension matching")
+    # --- 6) Update file paths (single deterministic pass) ---
+    if old_path and new_path:
+        paths_updated += update_file_paths(root, old_path, new_path, ignore_extensions)
 
     # --- 7) Write the updated XML to the *new* .avc file ---
     tree.write(output_file, encoding="utf-8", xml_declaration=True)
@@ -855,6 +835,7 @@ def adjust_composition(input_file, output_file, old_path=None, new_path=None,
         f"Modifications Summary:\n"
         f"Clips modified: {clips_modified}\n"
         f"Transforms adjusted: {transforms_adjusted}\n"
+        f"Additional effect position/range adjustments: {position_ranges_adjusted}\n"
         f"Durations adjusted: {durations_adjusted}\n"
         f"Custom durations preserved: {custom_durations_preserved}\n"
         f"File paths updated: {paths_updated}\n"
@@ -941,6 +922,7 @@ class ResolumeConverterApp:
         
         # Check for updates on startup (non-blocking, after a delay)
         self.root.after(2000, self.check_for_updates_silently)
+        self.effect_position_policy = load_effect_position_policy()
     
     def create_widgets(self):
         # Create a main frame to hold everything
@@ -1331,6 +1313,22 @@ class ResolumeConverterApp:
             # Extract the output filename without extension to use as the composition name
             output_basename = os.path.basename(output_file)
             output_name = os.path.splitext(output_basename)[0]
+
+            unknown_effects = scan_unknown_position_effects(input_file, self.effect_position_policy)
+            if unknown_effects:
+                for effect_type, info in sorted(unknown_effects.items()):
+                    result = messagebox.askyesnocancel(
+                        "Unknown Position Effect",
+                        f"Effect '{effect_type}' has position/anchor parameters.\n"
+                        f"Detected occurrences: {info['count']}\n"
+                        f"Sample value: {info['sample_value']}\n\n"
+                        f"Treat this effect as pixel-based and convert these parameters?"
+                        f"\n\nYour choice will be remembered for future conversions."
+                    )
+                    if result is None:
+                        return
+                    self.effect_position_policy[effect_type] = "convert" if result else "skip"
+                save_effect_position_policy(self.effect_position_policy)
             
             # Check if ignore_extensions is checked
             if self.ignore_extensions.get():
@@ -1355,7 +1353,8 @@ class ResolumeConverterApp:
                 resolution_factor,
                 framerate_factor,
                 new_name=output_name,
-                ignore_extensions=self.ignore_extensions.get()  # Pass the checkbox value
+                ignore_extensions=self.ignore_extensions.get(),  # Pass the checkbox value
+                effect_position_policy=self.effect_position_policy
             )
             messagebox.showinfo("Processing Complete", summary)
         except Exception as e:
@@ -1364,119 +1363,93 @@ class ResolumeConverterApp:
     def open_manual_pdf(self):
         """Open the PDF manual"""
         try:
-            # Check if we're running from the bundled app
             import sys
             import os
-            import subprocess
-            import platform
-            
-            # Determine the path to the manual based on whether we're running from the app bundle
-            if getattr(sys, 'frozen', False):
-                # Running from the bundled app
-                if platform.system() == 'Darwin':  # macOS
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              '../Resources/MANUAL.pdf')
-                else:
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              'resources/MANUAL.pdf')
-            else:
-                # Running from source
-                manual_path = 'MANUAL.pdf'
-                
-                # If the PDF doesn't exist, try to create it
-                if not os.path.exists(manual_path):
-                    messagebox.showinfo("Opening Manual",
-                                       "The PDF manual doesn't exist yet. Opening the Markdown version instead.")
-                    self.open_manual_markdown()
-                    return
-            
-            # Open the PDF with the default application
-            if platform.system() == 'Darwin':  # macOS
-                subprocess.run(['open', manual_path])
-            elif platform.system() == 'Windows':  # Windows
-                os.startfile(manual_path)
-            else:  # Linux
-                subprocess.run(['xdg-open', manual_path])
+            manual_path = self._find_manual_file("MANUAL.pdf")
+            if not manual_path:
+                messagebox.showinfo(
+                    "Opening Manual",
+                    "The PDF manual is not bundled. Opening the Markdown manual instead.",
+                )
+                self.open_manual_markdown()
+                return
+            self._open_file_with_default_app(manual_path)
                 
         except Exception as e:
             messagebox.showerror("Error", f"Could not open the manual: {str(e)}")
-            # Fallback to opening the markdown file
             self.open_manual_markdown()
     
     def open_manual_html(self):
         """Open the HTML manual"""
         try:
-            # Check if we're running from the bundled app
-            import sys
-            import os
-            import subprocess
-            import platform
-            
-            # Determine the path to the manual based on whether we're running from the app bundle
-            if getattr(sys, 'frozen', False):
-                # Running from the bundled app
-                if platform.system() == 'Darwin':  # macOS
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              '../Resources/MANUAL.html')
-                else:
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              'resources/MANUAL.html')
-            else:
-                # Running from source
-                manual_path = 'MANUAL.html'
-                
-                # If the HTML doesn't exist, try to create it
-                if not os.path.exists(manual_path):
-                    messagebox.showinfo("Opening Manual",
-                                       "The HTML manual doesn't exist yet. Opening the Markdown version instead.")
-                    self.open_manual_markdown()
-                    return
-            
-            # Open the HTML with the default browser
-            if platform.system() == 'Darwin':  # macOS
-                subprocess.run(['open', manual_path])
-            elif platform.system() == 'Windows':  # Windows
-                os.startfile(manual_path)
-            else:  # Linux
-                subprocess.run(['xdg-open', manual_path])
+            manual_path = self._find_manual_file("MANUAL.html")
+            if not manual_path:
+                messagebox.showinfo(
+                    "Opening Manual",
+                    "The HTML manual is not bundled. Opening the Markdown manual instead.",
+                )
+                self.open_manual_markdown()
+                return
+            self._open_file_with_default_app(manual_path)
                 
         except Exception as e:
             messagebox.showerror("Error", f"Could not open the manual: {str(e)}")
-            # Fallback to opening the markdown file
             self.open_manual_markdown()
     
     def open_manual_markdown(self):
         """Open the Markdown manual"""
         try:
-            # Check if we're running from the bundled app
-            import sys
-            import os
-            import subprocess
-            import platform
-            
-            # Determine the path to the manual based on whether we're running from the app bundle
-            if getattr(sys, 'frozen', False):
-                # Running from the bundled app
-                if platform.system() == 'Darwin':  # macOS
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              '../Resources/MANUAL.md')
-                else:
-                    manual_path = os.path.join(os.path.dirname(sys.executable),
-                                              'resources/MANUAL.md')
-            else:
-                # Running from source
-                manual_path = 'MANUAL.md'
-            
-            # Open the Markdown file with the default application
-            if platform.system() == 'Darwin':  # macOS
-                subprocess.run(['open', manual_path])
-            elif platform.system() == 'Windows':  # Windows
-                os.startfile(manual_path)
-            else:  # Linux
-                subprocess.run(['xdg-open', manual_path])
+            manual_path = self._find_manual_file("MANUAL.md")
+            if not manual_path:
+                messagebox.showerror(
+                    "Error",
+                    "Could not find MANUAL.md in the installed application.",
+                )
+                return
+            self._open_file_with_default_app(manual_path)
                 
         except Exception as e:
             messagebox.showerror("Error", f"Could not open the manual: {str(e)}")
+
+    def _open_file_with_default_app(self, path):
+        import os
+        import platform
+        import subprocess
+
+        if platform.system() == 'Darwin':
+            subprocess.run(['open', path], check=False)
+        elif platform.system() == 'Windows':
+            os.startfile(path)
+        else:
+            subprocess.run(['xdg-open', path], check=False)
+
+    def _find_manual_file(self, filename):
+        import os
+        import sys
+
+        candidates = []
+        if getattr(sys, 'frozen', False):
+            exe_dir = os.path.dirname(sys.executable)
+            candidates.extend([
+                os.path.join(exe_dir, filename),
+                os.path.join(exe_dir, "_internal", filename),
+                os.path.join(exe_dir, "resources", filename),
+                os.path.join(exe_dir, "Resources", filename),
+                os.path.normpath(os.path.join(exe_dir, "..", "Resources", filename)),
+                os.path.normpath(os.path.join(exe_dir, "..", "resources", filename)),
+            ])
+        else:
+            repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            candidates.extend([
+                os.path.join(repo_root, filename),
+                os.path.join(repo_root, "docs", filename),
+                os.path.join(repo_root, "documentation", filename),
+            ])
+
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+        return None
     
     def check_for_updates(self, show_if_current=True):
         """
@@ -1557,6 +1530,101 @@ class ResolumeConverterApp:
         )
         if result:
             webbrowser.open(download_url)
+
+    def manage_effect_position_policy(self):
+        """View/edit/reset remembered effect position conversion policy."""
+        editor = tk.Toplevel(self.root)
+        editor.title("Effect Position Rules")
+        editor.geometry("700x420")
+        editor.minsize(620, 360)
+        editor.transient(self.root)
+        editor.grab_set()
+
+        container = ttk.Frame(editor, padding=12)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        info = ttk.Label(
+            container,
+            text=(
+                "These rules are remembered and reused when unknown effects expose "
+                "Position/Anchor parameters."
+            ),
+            style='TLabel'
+        )
+        info.pack(anchor="w", pady=(0, 10))
+
+        columns = ("effect", "mode")
+        tree = ttk.Treeview(container, columns=columns, show="headings", height=12)
+        tree.heading("effect", text="Effect Type")
+        tree.heading("mode", text="Mode")
+        tree.column("effect", width=420, anchor="w")
+        tree.column("mode", width=180, anchor="center")
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        for effect_type, mode in sorted(self.effect_position_policy.items()):
+            tree.insert("", tk.END, values=(effect_type, mode))
+
+        if not self.effect_position_policy:
+            messagebox.showinfo(
+                "No Saved Rules",
+                "No effect position rules are saved yet.\n"
+                "They will appear here after you answer prompts during conversion."
+            )
+
+        def get_selected_effect():
+            selection = tree.selection()
+            if not selection:
+                return None, None
+            item_id = selection[0]
+            values = tree.item(item_id, "values")
+            if not values:
+                return None, None
+            return item_id, values[0]
+
+        def set_mode(mode):
+            item_id, effect_type = get_selected_effect()
+            if not effect_type:
+                messagebox.showwarning("No Selection", "Select an effect rule first.")
+                return
+            self.effect_position_policy[effect_type] = mode
+            tree.item(item_id, values=(effect_type, mode))
+
+        def remove_rule():
+            item_id, effect_type = get_selected_effect()
+            if not effect_type:
+                messagebox.showwarning("No Selection", "Select an effect rule first.")
+                return
+            self.effect_position_policy.pop(effect_type, None)
+            tree.delete(item_id)
+
+        def reset_all():
+            if not self.effect_position_policy:
+                return
+            if not messagebox.askyesno(
+                "Reset Rules",
+                "Delete all saved effect position rules?"
+            ):
+                return
+            self.effect_position_policy.clear()
+            for item_id in tree.get_children():
+                tree.delete(item_id)
+
+        def save_and_close():
+            save_effect_position_policy(self.effect_position_policy)
+            editor.destroy()
+
+        button_row = ttk.Frame(container)
+        button_row.pack(fill=tk.X, pady=(10, 0))
+
+        ttk.Button(button_row, text="Set Convert", command=lambda: set_mode("convert"), style='TButton').pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Button(button_row, text="Set Skip", command=lambda: set_mode("skip"), style='TButton').pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Button(button_row, text="Remove Rule", command=remove_rule, style='TButton').pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Button(button_row, text="Reset All", command=reset_all, style='TButton').pack(side=tk.LEFT)
+
+        close_row = ttk.Frame(container)
+        close_row.pack(fill=tk.X, pady=(8, 0))
+        ttk.Button(close_row, text="Save & Close", command=save_and_close, style='TButton').pack(side=tk.RIGHT)
+        ttk.Button(close_row, text="Cancel", command=editor.destroy, style='TButton').pack(side=tk.RIGHT, padx=(0, 8))
             
     def show_about(self):
         """Show the About dialog"""
@@ -1592,6 +1660,7 @@ if __name__ == "__main__":
     help_menu = tk.Menu(menubar, tearoff=0)
     help_menu.add_command(label="Check for Updates", command=app.check_for_updates)
     help_menu.add_command(label="User Manual", command=app.open_manual_html)
+    help_menu.add_command(label="Effect Position Rules", command=app.manage_effect_position_policy)
     help_menu.add_separator()
     help_menu.add_command(label="About", command=app.show_about)
     

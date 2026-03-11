@@ -15,9 +15,16 @@ print(f"Repository root directory: {repo_root}")
 main_script = os.path.join(repo_root, 'src/resolume_gui.py')
 print(f"Main script path: {main_script}")
 
-# Add the MANUAL.md and screenshots to the data files
+# Read app version from source
+version_scope = {}
+with open(os.path.join(repo_root, 'src/version.py'), encoding='utf-8') as version_file:
+    exec(version_file.read(), version_scope)
+app_version = version_scope.get('VERSION', '0.0.0')
+
+# Add manuals and screenshots to the data files
 datas = [
     (os.path.join(repo_root, 'docs/MANUAL.md'), '.'),
+    (os.path.join(repo_root, 'documentation/MANUAL.html'), '.'),
     (os.path.join(repo_root, 'screenshots/app_screenshot.png'), 'screenshots')
 ]
 
@@ -79,8 +86,8 @@ app = BUNDLE(
     icon=os.path.join(repo_root, 'icons/app_icon.icns'),
     bundle_identifier='com.tijnisfijn.resolume-composition-converter',
     info_plist={
-        'CFBundleShortVersionString': '1.1.1',
-        'CFBundleVersion': '1.1.1',
+        'CFBundleShortVersionString': app_version,
+        'CFBundleVersion': app_version,
         'NSHighResolutionCapable': 'True',
         'NSHumanReadableCopyright': '© 2025 Tijn Schuurmans',
     },

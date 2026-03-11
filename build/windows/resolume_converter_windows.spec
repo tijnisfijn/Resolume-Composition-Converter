@@ -37,9 +37,10 @@ if repo_root is None:
     repo_root = os.getcwd()
     print(f"WARNING: Could not find src/resolume_gui.py, using current directory: {repo_root}")
 
-# Add the MANUAL.md and screenshots to the data files
+# Add manuals and screenshots to the data files
 datas = [
     (os.path.join(repo_root, 'docs/MANUAL.md'), '.'),
+    (os.path.join(repo_root, 'documentation/MANUAL.html'), '.'),
     (os.path.join(repo_root, 'screenshots/app_screenshot.png'), 'screenshots')
 ]
 
